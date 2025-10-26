@@ -1,0 +1,157 @@
+/* ========== Global Styles ========== */
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: #f8fafc;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+/* Container for all main content */
+.container {
+  width: 90%;
+  max-width: 900px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  padding: 30px;
+}
+
+/* ========== Navbar ========== */
+nav {
+  background-color: #2563eb; /* blue tone */
+  padding: 15px 0;
+  text-align: center;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  margin: 0 15px;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+nav a:hover {
+  color: #a5f3fc;
+}
+
+/* ========== Headings ========== */
+h1, h2, h3 {
+  text-align: center;
+  color: #2563eb;
+}
+
+/* ========== Forms ========== */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+label {
+  font-weight: 500;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  width: 100%;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+button,
+input[type="submit"] {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover,
+input[type="submit"]:hover {
+  background-color: #1e40af;
+}
+
+/* ========== Table Styles ========== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+th {
+  background-color: #2563eb;
+  color: white;
+}
+
+tr:hover {
+  background-color: #f1f5f9;
+}
+
+/* ========== Flash Messages ========== */
+.alert {
+  padding: 10px 15px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+}
+
+.alert-success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.alert-danger {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.alert-info {
+  background-color: #e0f2fe;
+  color: #075985;
+}
+
+/* ========== Buttons (Extra Styles) ========== */
+a.btn {
+  display: inline-block;
+  background-color: #2563eb;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+a.btn:hover {
+  background-color: #1e40af;
+}
+
+/* ========== Footer ========== */
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+  color: #777;
+}
