@@ -7,13 +7,10 @@ from models import db, User, Item
 from dotenv import load_dotenv
 import os
 
-# ================== INITIAL SETUP ==================
 load_dotenv()
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback_secret_key')
 
-# Database Configuration
 db_type = os.getenv('DB_TYPE', 'mysql')
 if db_type == 'mysql':
     user = os.getenv('DB_USER', 'root')
@@ -26,34 +23,42 @@ else:
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Initialize Extensions
 db.init_app(app)
 migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# ================== ROUTES ==================
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# ---------- AUTH ----------
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form['username']
-        email = request.form['email']
+        email = request.form['email'].strip().lower()
         password = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
 
-        # Prevent manual registration of 'admin'
         if username.lower() == 'admin':
             flash('You cannot register with this username.', 'danger')
+            return redirect(url_for('register'))
+
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            flash('Email is already registered. Please use another email or log in.', 'danger')
+            return redirect(url_for('register'))
+
+        existing_username = User.query.filter_by(username=username).first()
+        if existing_username:
+            flash('Username is already taken. Please choose another one.', 'danger')
             return redirect(url_for('register'))
 
         user = User(username=username, email=email, password=password)
@@ -86,7 +91,7 @@ def logout():
     flash('You have been logged out.', 'info')
     return redirect(url_for('index'))
 
-# ---------- USER DASHBOARD ----------
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -138,7 +143,7 @@ def delete_item(item_id):
     flash('Item deleted!', 'info')
     return redirect(url_for('dashboard'))
 
-# ---------- PUBLIC VIEW ----------
+
 @app.route('/view_items')
 def view_items():
     search = request.args.get('search', '')
@@ -152,7 +157,7 @@ def view_items():
         items = Item.query.all()
     return render_template('view_items.html', items=items)
 
-# ---------- ADMIN DASHBOARD ----------
+
 @app.route('/admin')
 @login_required
 def admin_dashboard():
@@ -200,7 +205,6 @@ def admin_delete_item(item_id):
     return redirect(url_for('admin_dashboard'))
 
 
-# ---------- TOGGLE RESOLVED STATUS ----------
 @app.route('/admin/toggle_resolved/<int:item_id>', methods=['POST'])
 @login_required
 def admin_toggle_resolved(item_id):
@@ -211,11 +215,9 @@ def admin_toggle_resolved(item_id):
     item = Item.query.get_or_404(item_id)
     item.is_resolved = not item.is_resolved
     db.session.commit()
-
     flash('Item status updated successfully!', 'success')
     return redirect(url_for('admin_dashboard'))
 
 
-# ================== RUN APP ==================
 if __name__ == '__main__':
     app.run(debug=True)
