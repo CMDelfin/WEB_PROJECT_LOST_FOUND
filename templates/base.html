@@ -5,21 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lost & Found System</title>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
+        rel="stylesheet" 
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" 
+        crossorigin="anonymous">
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-gradient-primary shadow-sm py-0.1">
-    <div class="container d-flex justify-content-between align-items-center">
-      <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
-        <img src="{{ url_for('static', filename='images/lostfoundlogo.png') }}" 
-             alt="Lost & Found Logo" 
-             height="35" class="rounded-circle border border-light">
-      </a>
+
+  <nav class="navbar navbar-expand-lg bg-gradient-primary shadow-sm py-0.1">
+    <div class="container d-flex align-items-center justify-content-between">
+      
       <div class="d-flex align-items-center gap-2">
+        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
+          <img src="{{ url_for('static', filename='images/lostfoundlogo.png') }}" 
+               alt="Lost & Found Logo" 
+               height="35" class="rounded-circle border border-light me-2">
+          <span class="fw-semibold title fs-5">Lost and Found</span>
+        </a>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 ms-auto">
+        {% if not current_user.is_authenticated %}
+          {% set current_page = request.endpoint %}
+          {% if current_page in ['index', 'login', 'register'] %}
+            <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-sm">Login</a>
+            <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-sm">Register</a>
+          {% endif %}
+        {% endif %}
+
         <button id="sidebarToggle" class="btn btn-outline-light btn-sm">☰ Menu</button>
       </div>
     </div>
@@ -43,18 +60,23 @@
         <h6 class="mb-0">{{ current_user.username }}</h6>
         <small>{{ current_user.email }}</small>
       </div>
-    {% endif %}
 
-    <h5 class="text-center mb-3 mt-1">⚙️ Menu</h5>
-
-    {% if current_user.is_authenticated %}
+      <h5 class="text-center mb-3 mt-1">⚙️ Menu</h5>
       <a href="{{ url_for('dashboard') }}" class="btn btn-light w-100 mb-2">Dashboard</a>
       <a href="{{ url_for('view_items') }}" class="btn btn-outline-light w-100 mb-2">View Items</a>
       <a href="{{ url_for('logout') }}" class="btn btn-danger w-100 mb-2">Logout</a>
+
     {% else %}
-      <a href="{{ url_for('view_items') }}" class="btn btn-outline-light w-100 mb-2">View Items</a>
-      <a href="{{ url_for('login') }}" class="btn btn-light w-100 mb-2">Login</a>
-      <a href="{{ url_for('register') }}" class="btn btn-warning w-100 mb-4">Register</a>
+      {% set current_page = request.endpoint %}
+      <h5 class="text-center mb-3 mt-1">⚙️ Menu</h5>
+
+      {% if current_page in ['index', 'login', 'register'] %}
+        <a href="{{ url_for('view_items') }}" class="btn btn-outline-light w-100 mb-2">View Items</a>
+      {% else %}
+        <a href="{{ url_for('view_items') }}" class="btn btn-outline-light w-100 mb-2">View Items</a>
+        <a href="{{ url_for('login') }}" class="btn btn-light w-100 mb-2">Login</a>
+        <a href="{{ url_for('register') }}" class="btn btn-warning w-100 mb-4">Register</a>
+      {% endif %}
     {% endif %}
 
     <div class="text-center">
@@ -73,17 +95,18 @@
     {% endwith %}
   </div>
 
-  <main class="container my-4 flex-grow-1">
+  <main class="container my-2 flex-grow-1">
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="text-center py-1 mt-auto text-muted border-top small">
+  <footer class="text-center py-1 mt-auto footer-text small">
     © 2025 Lost & Found System — Built with ❤️ using Flask & MySQL
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
           integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
           crossorigin="anonymous"></script>
+
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
