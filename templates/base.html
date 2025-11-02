@@ -6,8 +6,7 @@
   <title>Lost & Found System</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
-        rel="stylesheet" 
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" 
+        rel="stylesheet"
         crossorigin="anonymous">
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -16,28 +15,24 @@
 
 <body>
 
-  <nav class="navbar navbar-expand-lg bg-gradient-primary shadow-sm py-0.1">
-    <div class="container d-flex align-items-center justify-content-between">
-      
-      <div class="d-flex align-items-center gap-2">
-        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
-          <img src="{{ url_for('static', filename='images/lostfoundlogo.png') }}" 
-               alt="Lost & Found Logo" 
-               height="35" class="rounded-circle border border-light me-2">
-          <span class="fw-semibold title fs-5">Lost and Found</span>
-        </a>
-      </div>
+  <nav class="navbar-modern-full">
+    <div class="navbar-inner">
+      <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
+        <img src="{{ url_for('static', filename='images/lostfoundlogo.png') }}" 
+             alt="Lost & Found Logo"
+             class="rounded-circle border border-light">
+        <span class="title">Trackr</span>
+      </a>
 
       <div class="d-flex align-items-center gap-2 ms-auto">
         {% if not current_user.is_authenticated %}
           {% set current_page = request.endpoint %}
           {% if current_page in ['index', 'login', 'register'] %}
-            <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-sm">Login</a>
-            <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-sm">Register</a>
+            <a href="{{ url_for('login') }}" class="btn nav-btn">Login</a>
+            <a href="{{ url_for('register') }}" class="btn nav-btn">Register</a>
           {% endif %}
         {% endif %}
-
-        <button id="sidebarToggle" class="btn btn-outline-light btn-sm">☰ Menu</button>
+        <button id="sidebarToggle" class="btn nav-btn">☰ Menu</button>
       </div>
     </div>
   </nav>
@@ -49,8 +44,8 @@
       <div class="text-center mb-3 mt-3 sidebar-profile">
         {% if current_user.profile_pic %}
           <img src="{{ url_for('static', filename='uploads/' + current_user.profile_pic) }}" 
-               alt="Profile Picture" 
-               class="rounded-circle border border-light mb-1 profile-img" 
+               alt="Profile Picture"
+               class="rounded-circle border border-light mb-1 profile-img"
                width="60" height="60">
         {% else %}
           <div class="profile-placeholder rounded-circle mb-1">
@@ -103,8 +98,7 @@
     © 2025 Lost & Found System — Built with ❤️ using Flask & MySQL
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
-          integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
           crossorigin="anonymous"></script>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>

@@ -17,7 +17,7 @@ class Item(db.Model):
     description = db.Column(db.Text, nullable=False)
     location = db.Column(db.String(100), nullable=False)
     status = db.Column(db.String(20), nullable=False)
+    category = db.Column(db.String(50), nullable=False)
     date_reported = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    
     is_resolved = db.Column(db.Boolean, default=False)

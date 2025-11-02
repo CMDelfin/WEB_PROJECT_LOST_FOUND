@@ -37,7 +37,15 @@ def load_user(user_id):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    total_lost = Item.query.filter_by(status='lost').count()
+    total_found = Item.query.filter_by(status='found').count()
+    total_returned = Item.query.filter_by(is_resolved=True).count()
+    return render_template(
+        'index.html',
+        total_lost=total_lost,
+        total_found=total_found,
+        total_returned=total_returned
+    )
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -51,13 +59,11 @@ def register():
             flash('You cannot register with this username.', 'danger')
             return redirect(url_for('register'))
 
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
+        if User.query.filter_by(email=email).first():
             flash('Email is already registered. Please use another email or log in.', 'danger')
             return redirect(url_for('register'))
 
-        existing_username = User.query.filter_by(username=username).first()
-        if existing_username:
+        if User.query.filter_by(username=username).first():
             flash('Username is already taken. Please choose another one.', 'danger')
             return redirect(url_for('register'))
 
@@ -97,7 +103,6 @@ def logout():
 def dashboard():
     if current_user.username.lower() == 'admin':
         return redirect(url_for('admin_dashboard'))
-
     items = Item.query.filter_by(user_id=current_user.id).all()
     return render_template('dashboard.html', items=items)
 
@@ -109,17 +114,24 @@ def add_item():
         flash('Admins cannot report items.', 'warning')
         return redirect(url_for('admin_dashboard'))
 
+    categories = [
+        "Electronics", "Clothing", "Documents",
+        "Accessories", "Bags", "Keys", "Pets", "Others"
+    ]
+
     if request.method == 'POST':
         name = request.form['name']
         description = request.form['description']
         location = request.form['location']
         status = request.form['status']
+        category = request.form['category']
 
         item = Item(
             name=name,
             description=description,
             location=location,
             status=status,
+            category=category,
             user_id=current_user.id
         )
         db.session.add(item)
@@ -127,7 +139,7 @@ def add_item():
         flash('Item added successfully!', 'success')
         return redirect(url_for('dashboard'))
 
-    return render_template('add_item.html')
+    return render_template('add_item.html', categories=categories)
 
 
 @app.route('/delete_item/<int:item_id>')
@@ -137,7 +149,6 @@ def delete_item(item_id):
     if item.user_id != current_user.id:
         flash("You can't delete someone else's item!", 'danger')
         return redirect(url_for('dashboard'))
-
     db.session.delete(item)
     db.session.commit()
     flash('Item deleted!', 'info')
@@ -147,15 +158,40 @@ def delete_item(item_id):
 @app.route('/view_items')
 def view_items():
     search = request.args.get('search', '')
+    selected_category = request.args.get('category', '')
+
+    query = Item.query
     if search:
-        items = Item.query.filter(
+        query = query.filter(
             Item.name.like(f'%{search}%') |
             Item.description.like(f'%{search}%') |
             Item.location.like(f'%{search}%')
-        ).all()
-    else:
-        items = Item.query.all()
-    return render_template('view_items.html', items=items)
+        )
+    if selected_category:
+        query = query.filter_by(category=selected_category)
+
+    items = query.all()
+
+    categories = [
+        "Electronics", "Clothing", "Documents",
+        "Accessories", "Bags", "Keys", "Pets", "Others"
+    ]
+
+    total_items = len(items)
+    total_lost = Item.query.filter_by(status='lost').count()
+    total_found = Item.query.filter_by(status='found').count()
+    total_resolved = Item.query.filter_by(is_resolved=True).count()
+
+    return render_template(
+        'view_items.html',
+        items=items,
+        total_items=total_items,
+        total_lost=total_lost,
+        total_found=total_found,
+        total_resolved=total_resolved,
+        categories=categories,
+        selected_category=selected_category
+    )
 
 
 @app.route('/admin')
@@ -165,9 +201,28 @@ def admin_dashboard():
         flash('Access denied.', 'danger')
         return redirect(url_for('dashboard'))
 
-    items = Item.query.all()
+    selected_category = request.args.get('category', '')
+
+    categories = [
+        "Electronics", "Clothing", "Documents",
+        "Accessories", "Bags", "Keys", "Pets", "Others"
+    ]
+
+    if selected_category and selected_category != "All":
+        items = Item.query.filter_by(category=selected_category).all()
+    else:
+        items = Item.query.all()
+
     users = User.query.all()
-    return render_template('admin.html', items=items, users=users)
+
+    return render_template(
+        'admin.html',
+        items=items,
+        users=users,
+        categories=categories,
+        selected_category=selected_category
+    )
+
 
 
 @app.route('/admin/edit_item/<int:item_id>', methods=['GET', 'POST'])
@@ -176,19 +231,21 @@ def admin_edit_item(item_id):
     if current_user.username.lower() != 'admin':
         flash('Access denied.', 'danger')
         return redirect(url_for('dashboard'))
-
     item = Item.query.get_or_404(item_id)
-
+    categories = [
+        "Electronics", "Clothing", "Documents",
+        "Accessories", "Bags", "Keys", "Pets", "Others"
+    ]
     if request.method == 'POST':
         item.name = request.form['name']
         item.description = request.form['description']
         item.location = request.form['location']
         item.status = request.form['status']
+        item.category = request.form['category']
         db.session.commit()
         flash('Item updated successfully!', 'success')
         return redirect(url_for('admin_dashboard'))
-
-    return render_template('admin_edit_item.html', item=item)
+    return render_template('admin_edit_item.html', item=item, categories=categories)
 
 
 @app.route('/admin/delete_item/<int:item_id>')
@@ -197,7 +254,6 @@ def admin_delete_item(item_id):
     if current_user.username.lower() != 'admin':
         flash('Access denied.', 'danger')
         return redirect(url_for('dashboard'))
-
     item = Item.query.get_or_404(item_id)
     db.session.delete(item)
     db.session.commit()
@@ -211,7 +267,6 @@ def admin_toggle_resolved(item_id):
     if current_user.username.lower() != 'admin':
         flash("Unauthorized access!", 'danger')
         return redirect(url_for('dashboard'))
-
     item = Item.query.get_or_404(item_id)
     item.is_resolved = not item.is_resolved
     db.session.commit()

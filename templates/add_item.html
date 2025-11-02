@@ -11,14 +11,17 @@
               <label>Item Name</label>
               <input type="text" name="name" class="form-control" required>
             </div>
+
             <div class="mb-3">
               <label>Description</label>
               <textarea name="description" class="form-control" rows="3" required></textarea>
             </div>
+
             <div class="mb-3">
               <label>Location</label>
               <input type="text" name="location" class="form-control" required>
             </div>
+
             <div class="mb-3">
               <label>Status</label>
               <select name="status" class="form-select" required>
@@ -26,6 +29,17 @@
                 <option value="found">Found</option>
               </select>
             </div>
+
+            <div class="mb-3">
+              <label>Category</label>
+              <select name="category" class="form-select" required>
+                <option value="">Select Category</option>
+                {% for cat in categories %}
+                  <option value="{{ cat }}">{{ cat }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
             <button type="submit" class="btn btn-primary w-100">Submit Item</button>
           </form>
         </div>

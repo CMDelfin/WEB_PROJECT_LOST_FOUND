@@ -19,62 +19,79 @@
   <div class="tab-content" id="adminTabsContent">
 
     <div class="tab-pane fade show active" id="items" role="tabpanel" aria-labelledby="items-tab">
-      {% if items %}
-      <table class="table table-striped table-bordered align-middle text-center admin-table">
-        <thead class="table-primary align-middle">
-          <tr>
-            <th>ID</th>
-            <th>Item Name</th>
-            <th>Description</th>
-            <th>Location</th>
-            <th>Status</th>
-            <th>Date Reported</th>
-            <th>Reported By</th>
-            <th>Resolved?</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody class="text-dark">
-          {% for item in items %}
-          <tr>
-            <td>{{ item.id }}</td>
-            <td>{{ item.name }}</td>
-            <td>{{ item.description }}</td>
-            <td>{{ item.location }}</td>
-            <td>
-              {% if item.status == 'found' %}
-                <span class="badge bg-success">Found</span>
-              {% else %}
-                <span class="badge bg-warning text-dark">Lost</span>
-              {% endif %}
-            </td>
-            <td>{{ item.date_reported.strftime('%Y-%m-%d') if item.date_reported else 'N/A' }}</td>
-            <td>{{ item.user.username if item.user else 'Unknown' }}</td>
-            <td>
-              {% if item.is_resolved %}
-                <span class="badge bg-success">✔ Yes</span>
-              {% else %}
-                <span class="badge bg-danger">✘ No</span>
-              {% endif %}
-            </td>
-            <td>
-              <div class="d-flex justify-content-center flex-wrap gap-2">
-                <form method="POST" action="{{ url_for('admin_toggle_resolved', item_id=item.id) }}">
-                  <button type="submit" class="btn btn-sm {% if item.is_resolved %}btn-warning{% else %}btn-success{% endif %}">
-                    {% if item.is_resolved %}Unresolve{% else %}Resolve{% endif %}
-                  </button>
-                </form>
-                <a href="{{ url_for('admin_edit_item', item_id=item.id) }}" class="btn btn-sm btn-primary">Edit</a>
-                <a href="{{ url_for('admin_delete_item', item_id=item.id) }}" class="btn btn-sm btn-danger"
-                  onclick="return confirm('Are you sure you want to delete this item?');">Delete</a>
-              </div>
-            </td>
-          </tr>
+      <form method="GET" action="{{ url_for('admin_dashboard') }}" class="mb-3 text-center">
+        <label for="category" class="form-label fw-bold">Filter by Category:</label>
+        <select name="category" id="category" class="form-select d-inline-block w-auto mx-2"
+                onchange="this.form.submit()">
+          <option value="">All Categories</option>
+          {% for category in categories %}
+            <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>
+              {{ category }}
+            </option>
           {% endfor %}
-        </tbody>
-      </table>
+        </select>
+      </form>
+
+      {% if items %}
+      <div class="table-responsive">
+        <table class="table table-striped table-bordered align-middle text-center admin-table">
+          <thead class="table-primary align-middle">
+            <tr>
+              <th>ID</th>
+              <th>Item Name</th>
+              <th>Description</th>
+              <th>Location</th>
+              <th>Category</th>
+              <th>Status</th>
+              <th>Date Reported</th>
+              <th>Reported By</th>
+              <th>Resolved?</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody class="text-dark">
+            {% for item in items %}
+            <tr>
+              <td>{{ item.id }}</td>
+              <td>{{ item.name }}</td>
+              <td>{{ item.description }}</td>
+              <td>{{ item.location }}</td>
+              <td>{{ item.category if item.category else 'N/A' }}</td>
+              <td>
+                {% if item.status == 'found' %}
+                  <span class="badge bg-success">Found</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark">Lost</span>
+                {% endif %}
+              </td>
+              <td>{{ item.date_reported.strftime('%Y-%m-%d') if item.date_reported else 'N/A' }}</td>
+              <td>{{ item.user.username if item.user else 'Unknown' }}</td>
+              <td>
+                {% if item.is_resolved %}
+                  <span class="badge bg-success">✔ Yes</span>
+                {% else %}
+                  <span class="badge bg-danger">✘ No</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="d-flex justify-content-center flex-wrap gap-2">
+                  <form method="POST" action="{{ url_for('admin_toggle_resolved', item_id=item.id) }}">
+                    <button type="submit" class="btn btn-sm {% if item.is_resolved %}btn-warning{% else %}btn-success{% endif %}">
+                      {% if item.is_resolved %}Unresolve{% else %}Resolve{% endif %}
+                    </button>
+                  </form>
+                  <a href="{{ url_for('admin_edit_item', item_id=item.id) }}" class="btn btn-sm btn-primary">Edit</a>
+                  <a href="{{ url_for('admin_delete_item', item_id=item.id) }}" class="btn btn-sm btn-danger"
+                    onclick="return confirm('Are you sure you want to delete this item?');">Delete</a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
       {% else %}
-        <p class="text-muted">No items found.</p>
+        <p class="text-muted text-center">No items found.</p>
       {% endif %}
     </div>
 

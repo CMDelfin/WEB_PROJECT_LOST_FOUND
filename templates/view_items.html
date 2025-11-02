@@ -3,17 +3,46 @@
 <div class="container py-4">
   <h2 class="fw-bold text-primary mb-4 text-center">📋 All Reported Items</h2>
 
-  <form method="GET" class="d-flex justify-content-center mb-4">
-    <input type="text" 
-           name="search" 
-           class="form-control w-100 shadow-sm me-2 rounded-pill px-3" 
-           placeholder="🔍 Search items by name, description, or location..." 
-           value="{{ request.args.get('search', '') }}">
-    <button type="submit" class="btn btn-primary rounded-pill px-4">Search</button>
+  <div class="d-flex justify-content-center gap-4 mb-4 flex-wrap text-center">
+    <div class="stat-box p-3 rounded shadow-sm">
+      <h4 class="mb-0 fw-bold">{{ total_items or 0 }}</h4>
+      <small>Total Items</small>
+    </div>
+    <div class="stat-box p-3 rounded shadow-sm">
+      <h4 class="mb-0 fw-bold text-warning">{{ total_lost or 0 }}</h4>
+      <small>Lost Items</small>
+    </div>
+    <div class="stat-box p-3 rounded shadow-sm">
+      <h4 class="mb-0 fw-bold text-success">{{ total_found or 0 }}</h4>
+      <small>Found Items</small>
+    </div>
+    <div class="stat-box p-3 rounded shadow-sm">
+      <h4 class="mb-0 fw-bold text-info">{{ total_resolved or 0 }}</h4>
+      <small>Resolved</small>
+    </div>
+  </div>
+
+  <form method="GET" class="d-flex flex-wrap justify-content-center align-items-center gap-2 mb-4">
+    <input 
+      type="text"
+      name="search"
+      class="form-control shadow-sm rounded-pill px-3"
+      placeholder="🔍 Search items by name, description, or location..."
+      value="{{ request.args.get('search', '') }}"
+      style="max-width: 475px;">
+    
+    <select name="category" class="form-select shadow-sm rounded-pill px-3" style="max-width: 220px;">
+      <option value="">All Categories</option>
+      {% for cat in categories %}
+        <option value="{{ cat }}" {% if request.args.get('category') == cat %}selected{% endif %}>{{ cat }}</option>
+      {% endfor %}
+    </select>
+
+    <button type="submit" class="btn btn-primary rounded-pill px-4">Filter</button>
   </form>
 
   {% if items %}
-  <div class="table-responsive shadow-sm rounded-4 bg-white p-3">
+  <div class="table-responsive shadow-sm rounded-4 bg-white dark-mode-table p-3">
     <table class="table align-middle table-hover">
       <thead class="table-primary text-center">
         <tr>
@@ -21,6 +50,7 @@
           <th>Item Name</th>
           <th>Description</th>
           <th>Location</th>
+          <th>Category</th>
           <th>Status</th>
           <th>Resolved</th>
           <th>Date Reported</th>
@@ -34,6 +64,7 @@
           <td class="fw-semibold">{{ item.name }}</td>
           <td class="text-muted">{{ item.description }}</td>
           <td>{{ item.location }}</td>
+          <td>{{ item.category if item.category else 'N/A' }}</td>
 
           <td>
             {% if item.status == 'found' %}
@@ -66,9 +97,9 @@
     </table>
   </div>
   {% else %}
-    <div class="text-center mt-5">
-      <p class="text-muted fs-5">No items found. 🕵️‍♀️</p>
-    </div>
+  <div class="text-center mt-5">
+    <p class="text-muted fs-5">No items found. 🕵️‍♀️</p>
+  </div>
   {% endif %}
 </div>
 {% endblock %}
