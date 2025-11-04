@@ -1,43 +1,51 @@
 {% extends 'base.html' %}
 {% block content %}
-<body class="subpage">
-  <div class="container mt-5">
-    <div class="card shadow-lg">
-      <div class="card-header bg-primary text-white">
-        <h4 class="mb-0">Edit Item (ID: {{ item.id }})</h4>
-      </div>
-      <div class="card-body">
-        <form method="POST">
-          <div class="mb-3">
-            <label for="name" class="form-label fw-semibold">Item Name</label>
-            <input type="text" id="name" name="name" class="form-control" value="{{ item.name }}" required>
-          </div>
+<div class="container mt-5">
+  <div class="card shadow-lg">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Edit Item (ID: {{ item.id }})</h4>
+    </div>
 
-          <div class="mb-3">
-            <label for="description" class="form-label fw-semibold">Description</label>
-            <textarea id="description" name="description" class="form-control" rows="3" required>{{ item.description }}</textarea>
-          </div>
+    <div class="card-body">
+      <form method="POST">
+        <div class="mb-3">
+          <label for="name" class="form-label fw-semibold">Item Name</label>
+          <input type="text" id="name" name="name" class="form-control" value="{{ item.name }}" required>
+        </div>
 
-          <div class="mb-3">
-            <label for="location" class="form-label fw-semibold">Location</label>
-            <input type="text" id="location" name="location" class="form-control" value="{{ item.location }}" required>
-          </div>
+        <div class="mb-3">
+          <label for="description" class="form-label fw-semibold">Description</label>
+          <textarea id="description" name="description" class="form-control" rows="3" required>{{ item.description }}</textarea>
+        </div>
 
-          <div class="mb-3">
-            <label for="status" class="form-label fw-semibold">Status</label>
-            <select id="status" name="status" class="form-select" required>
-              <option value="lost" {% if item.status == 'lost' %}selected{% endif %}>Lost</option>
-              <option value="found" {% if item.status == 'found' %}selected{% endif %}>Found</option>
-            </select>
-          </div>
+        <div class="mb-3">
+          <label for="location" class="form-label fw-semibold">Location</label>
+          <input type="text" id="location" name="location" class="form-control" value="{{ item.location }}" required>
+        </div>
 
-          <div class="d-flex justify-content-between mt-4">
-            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
-            <button type="submit" class="btn btn-success">Save Changes</button>
-          </div>
-        </form>
-      </div>
+        <div class="mb-3">
+          <label for="category" class="form-label fw-semibold">Category</label>
+          <select id="category" name="category" class="form-select" required>
+            {% for category in categories %}
+              <option value="{{ category }}" {% if category == item.category %}selected{% endif %}>{{ category }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="status" class="form-label fw-semibold">Status</label>
+          <select id="status" name="status" class="form-select" required>
+            <option value="lost" {% if item.status == 'lost' %}selected{% endif %}>Lost</option>
+            <option value="found" {% if item.status == 'found' %}selected{% endif %}>Found</option>
+          </select>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+          <button type="submit" class="btn btn-success">Save Changes</button>
+        </div>
+      </form>
     </div>
   </div>
-</body>
+</div>
 {% endblock %}

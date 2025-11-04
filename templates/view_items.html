@@ -27,11 +27,11 @@
       type="text"
       name="search"
       class="form-control shadow-sm rounded-pill px-3"
-      placeholder="🔍 Search items by name, description, or location..."
+      placeholder="🔍 Search items by Item Name, Description, or Location..."
       value="{{ request.args.get('search', '') }}"
-      style="max-width: 475px;">
+      style="max-width: 485px;">
     
-    <select name="category" class="form-select shadow-sm rounded-pill px-3" style="max-width: 220px;">
+    <select name="category" class="form-select shadow-sm rounded-pill px-3" style="max-width: 160px;">
       <option value="">All Categories</option>
       {% for cat in categories %}
         <option value="{{ cat }}" {% if request.args.get('category') == cat %}selected{% endif %}>{{ cat }}</option>

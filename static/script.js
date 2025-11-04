@@ -48,3 +48,78 @@ toggle.addEventListener("click", () => {
   localStorage.setItem("theme", isDark ? "dark" : "light");
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+  const registerForm = document.getElementById("registerForm");
+
+  if (registerForm) {
+    registerForm.addEventListener("submit", function (event) {
+      event.preventDefault(); 
+
+      const username = document.getElementById("username");
+      const email = document.getElementById("email");
+      const password = document.getElementById("password");
+
+      let valid = true;
+
+      if (username.value.trim().length < 3) {
+        username.classList.add("is-invalid");
+        valid = false;
+      } else {
+        username.classList.remove("is-invalid");
+      }
+
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(email.value.trim())) {
+        email.classList.add("is-invalid");
+        valid = false;
+      } else {
+        email.classList.remove("is-invalid");
+      }
+
+      if (password.value.trim().length < 6) {
+        password.classList.add("is-invalid");
+        valid = false;
+      } else {
+        password.classList.remove("is-invalid");
+      }
+
+      if (valid) {
+        registerForm.submit();
+      }
+    });
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const loginForm = document.getElementById("loginForm");
+
+  if (loginForm) {
+    loginForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const email = document.getElementById("email");
+      const password = document.getElementById("password");
+
+      let valid = true;
+
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(email.value.trim())) {
+        email.classList.add("is-invalid");
+        valid = false;
+      } else {
+        email.classList.remove("is-invalid");
+      }
+
+      if (password.value.trim() === "") {
+        password.classList.add("is-invalid");
+        valid = false;
+      } else {
+        password.classList.remove("is-invalid");
+      }
+
+      if (valid) {
+        loginForm.submit();
+      }
+    });
+  }
+});
