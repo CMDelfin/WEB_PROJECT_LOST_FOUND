@@ -9,7 +9,7 @@
       <img src="{{ url_for('static', filename='images/lostfoundlogo.png') }}" 
            alt="Trackr Logo" width="80"
            class="mb-3 rounded-circle border shadow-sm logo-border">
-      <h2 class="fw-bold auth-title">Welcome Back</h2>
+      <h2 class="fw-bold auth-title">Welcome</h2>
       <p class="auth-subtitle">Please log in to your account</p>
     </div>
 
@@ -19,15 +19,15 @@
         <label for="email" class="form-label fw-semibold auth-label">Email address</label>
         <input type="email" name="email" id="email" 
                class="form-control auth-input" 
-               placeholder="you@example.com" required>
-        <div class="invalid-feedback">Please enter a valid email.</div>
+               placeholder="Email" required>
+          <div class="invalid-feedback">Please enter a valid email.</div>
       </div>
 
       <div class="mb-4">
         <label for="password" class="form-label fw-semibold auth-label">Password</label>
         <input type="password" name="password" id="password" 
                class="form-control auth-input"
-               placeholder="Your password" required>
+               placeholder="Password" required>
         <div class="invalid-feedback">Password cannot be empty.</div>
       </div>
 
