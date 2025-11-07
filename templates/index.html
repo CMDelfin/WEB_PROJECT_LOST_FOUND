@@ -1,11 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<!-- ========================= HERO SECTION ========================= -->
 <div class="container mt-4 mb-5">
     <div class="row align-items-center flex-column flex-lg-row">
 
-        <!-- LEFT TEXT -->
         <div class="col-lg-6 mb-4 mb-lg-0">
             <p class="text-uppercase fw-semibold" style="color:#444; font-size:0.9rem;">
                 Welcome to Trackr
@@ -19,13 +17,11 @@
                 Manage lost and found reports, browse items, and stay organized with real-time updates — all in one place.
             </p>
 
-            <!-- ✅ Button 1: LOGIN -->
             <a href="{{ url_for('login') }}" class="trackr-btn mt-4 d-inline-block">
                 Login →
             </a>
         </div>
 
-        <!-- RIGHT IMAGE -->
         <div class="col-lg-6 text-center">
             <img src="{{ url_for('static', filename='images/devices.jpg') }}" 
                  alt="Devices"
@@ -40,14 +36,11 @@
     </div>
 </div>
 
-<!-- SPACER -->
 <div class="my-5"></div>
 
-<!-- ========================= SECTION 2 ========================= -->
 <div class="container mb-5">
     <div class="row align-items-center flex-column-reverse flex-lg-row">
 
-        <!-- LEFT IMAGE -->
         <div class="col-lg-6 text-center mt-4 mt-lg-0">
             <img src="{{ url_for('static', filename='images/clothes.jpg') }}" 
                  alt="Clothes"
@@ -59,7 +52,6 @@
                  ">
         </div>
 
-        <!-- RIGHT TEXT -->
         <div class="col-lg-6">
             <p class="text-uppercase fw-semibold" style="color:#444; font-size:0.9rem;">
                 Organized & Updated
@@ -74,7 +66,6 @@
                 Easily browse categories and locate your missing belongings.
             </p>
 
-            <!-- ✅ Button 2: VIEW ITEMS -->
             <a href="{{ url_for('view_items') }}" class="trackr-btn mt-4 d-inline-block">
                 Browse Items →
             </a>
@@ -83,14 +74,11 @@
     </div>
 </div>
 
-<!-- SPACER -->
 <div class="my-5"></div>
 
-<!-- ========================= SECTION 3 ========================= -->
 <div class="container mb-5">
     <div class="row align-items-center flex-column flex-lg-row">
 
-        <!-- LEFT TEXT -->
         <div class="col-lg-6 mb-4 mb-lg-0">
             <p class="text-uppercase fw-semibold" style="color:#444; font-size:0.9rem;">
                 Stay Alert
@@ -105,13 +93,11 @@
                 Stay updated with real-time status updates and retrieval instructions.
             </p>
 
-            <!-- ✅ Button 3: VIEW ITEMS AGAIN -->
             <a href="{{ url_for('view_items') }}" class="trackr-btn mt-4 d-inline-block">
                 Browse Items →
             </a>
         </div>
 
-        <!-- RIGHT IMAGE -->
         <div class="col-lg-6 text-center">
             <img src="{{ url_for('static', filename='images/accessories.jpg') }}" 
                  alt="Accessories"

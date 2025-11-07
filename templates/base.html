@@ -15,11 +15,9 @@
 
 <body>
 
-  <!-- ✅ NAVBAR -->
   <nav class="navbar-modern-full">
     <div class="navbar-inner">
 
-      <!-- ✅ LOGIC: Trackr → Dashboard if logged in, Index if logged out -->
       <a class="navbar-brand d-flex align-items-center" 
          href="{% if current_user.is_authenticated %}{{ url_for('dashboard') }}{% else %}{{ url_for('index') }}{% endif %}">
         <img src="{{ url_for('static', filename='images/lostfoundlogo.png') }}" 
@@ -44,7 +42,6 @@
     </div>
   </nav>
 
-  <!-- ✅ SIDEBAR -->
   <div id="sidebar" class="sidebar">
     <button id="closeSidebar" class="btn-close-custom">×</button>
 
@@ -76,7 +73,6 @@
     </div>
   </div>
 
-  <!-- ✅ FLASH MESSAGES -->
   <div class="flash-container">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% for category, message in messages %}
@@ -88,17 +84,14 @@
     {% endwith %}
   </div>
 
-  <!-- ✅ MAIN CONTENT -->
   <main class="container my-2 flex-grow-1">
     {% block content %}{% endblock %}
   </main>
 
-  <!-- ✅ FOOTER -->
   <footer class="text-center py-1 mt-auto footer-text small">
     © 2025 Trackr | All Rights Reserved
   </footer>
 
-  <!-- ✅ SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
           crossorigin="anonymous"></script>
 
