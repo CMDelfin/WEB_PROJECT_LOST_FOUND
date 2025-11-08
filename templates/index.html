@@ -1,115 +1,100 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="container mt-4 mb-5">
-    <div class="row align-items-center flex-column flex-lg-row">
+<div class="container hero-section reveal mt-4 mb-5" data-animate="left-right">
+  <div class="row align-items-center flex-column flex-lg-row">
 
-        <div class="col-lg-6 mb-4 mb-lg-0">
-            <p class="text-uppercase fw-semibold" style="color:#444; font-size:0.9rem;">
-                Welcome to Trackr
-            </p>
+    <div class="col-lg-6 mb-4 mb-lg-0 animate-left">
+      <p class="text-uppercase fw-semibold" style="color:#444; font-size:0.9rem;">
+        Welcome to Trackr
+      </p>
 
-            <h1 class="fw-bold" style="font-size:2.8rem; line-height:1.2;">
-                The Smartest Way to Track Lost & Found Items
-            </h1>
+      <h1 class="fw-bold">
+        The Smartest Way to Track Lost & Found Items
+      </h1>
 
-            <p class="mt-3" style="max-width:480px; color:#555;">
-                Manage lost and found reports, browse items, and stay organized with real-time updates — all in one place.
-            </p>
+      <p class="mt-3">
+        Manage lost and found reports, browse items, and stay organized with real-time updates — all in one place.
+      </p>
 
-            <a href="{{ url_for('login') }}" class="trackr-btn mt-4 d-inline-block">
-                Login →
-            </a>
-        </div>
-
-        <div class="col-lg-6 text-center">
-            <img src="{{ url_for('static', filename='images/devices.jpg') }}" 
-                 alt="Devices"
-                 style="
-                    width:100%;
-                    max-width:520px;
-                    border-radius:40px;
-                    object-fit:cover;
-                 ">
-        </div>
-
+      <a href="{{ url_for('login') }}" class="trackr-btn mt-4 d-inline-block">
+        Login →
+      </a>
     </div>
+
+    <div class="col-lg-6 text-center animate-right">
+      <img src="{{ url_for('static', filename='images/devices.jpg') }}" 
+           alt="Devices"
+           class="hero-image">
+    </div>
+
+  </div>
 </div>
 
 <div class="my-5"></div>
 
-<div class="container mb-5">
-    <div class="row align-items-center flex-column-reverse flex-lg-row">
+<div class="container reveal mb-5" data-animate="right-left">
+  <div class="row align-items-center flex-column-reverse flex-lg-row">
 
-        <div class="col-lg-6 text-center mt-4 mt-lg-0">
-            <img src="{{ url_for('static', filename='images/clothes.jpg') }}" 
-                 alt="Clothes"
-                 style="
-                    width:100%;
-                    max-width:520px;
-                    border-radius:30px;
-                    object-fit:cover;
-                 ">
-        </div>
-
-        <div class="col-lg-6">
-            <p class="text-uppercase fw-semibold" style="color:#444; font-size:0.9rem;">
-                Organized & Updated
-            </p>
-
-            <h1 class="fw-bold" style="font-size:2.3rem; line-height:1.2;">
-                Clothing & Personal Items Organized
-            </h1>
-
-            <p class="mt-3" style="max-width:480px; color:#555;">
-                From jackets to bags, our system keeps track of all personal items turned in to lost and found locations.
-                Easily browse categories and locate your missing belongings.
-            </p>
-
-            <a href="{{ url_for('view_items') }}" class="trackr-btn mt-4 d-inline-block">
-                Browse Items →
-            </a>
-        </div>
-
+    <div class="col-lg-6 text-center mt-4 mt-lg-0 animate-left">
+      <img src="{{ url_for('static', filename='images/clothes.jpg') }}" 
+           alt="Clothes"
+           class="section-image">
     </div>
+
+    <div class="col-lg-6 animate-right">
+      <p class="text-uppercase fw-semibold" style="color:#444; font-size:0.9rem;">
+        Organized & Updated
+      </p>
+
+      <h1 class="fw-bold" style="font-size:2.3rem; line-height:1.2;">
+        Clothing & Personal Items Organized
+      </h1>
+
+      <p class="mt-3" style="max-width:480px; color:#555;">
+        From jackets to bags, our system keeps track of all personal items turned in to lost and found locations.
+        Easily browse categories and locate your missing belongings.
+      </p>
+
+      <a href="{{ url_for('view_items') }}" class="trackr-btn mt-4 d-inline-block">
+        Browse Items →
+      </a>
+    </div>
+
+  </div>
 </div>
 
 <div class="my-5"></div>
 
-<div class="container mb-5">
-    <div class="row align-items-center flex-column flex-lg-row">
+<div class="container reveal mb-5" data-animate="left-right">
+  <div class="row align-items-center flex-column flex-lg-row">
 
-        <div class="col-lg-6 mb-4 mb-lg-0">
-            <p class="text-uppercase fw-semibold" style="color:#444; font-size:0.9rem;">
-                Stay Alert
-            </p>
+    <div class="col-lg-6 mb-4 mb-lg-0 animate-left">
+      <p class="text-uppercase fw-semibold" style="color:#444; font-size:0.9rem;">
+        Stay Alert
+      </p>
 
-            <h1 class="fw-bold" style="font-size:2.3rem; line-height:1.2;">
-                Accessories & Essentials Tracked
-            </h1>
+      <h1 class="fw-bold" style="font-size:2.3rem; line-height:1.2;">
+        Accessories & Essentials Tracked
+      </h1>
 
-            <p class="mt-3" style="max-width:480px; color:#555;">
-                Keys, wallets, IDs — important items are safely logged and retrievable. 
-                Stay updated with real-time status updates and retrieval instructions.
-            </p>
+      <p class="mt-3" style="max-width:480px; color:#555;">
+        Keys, wallets, IDs — important items are safely logged and retrievable. 
+        Stay updated with real-time status updates and retrieval instructions.
+      </p>
 
-            <a href="{{ url_for('view_items') }}" class="trackr-btn mt-4 d-inline-block">
-                Browse Items →
-            </a>
-        </div>
-
-        <div class="col-lg-6 text-center">
-            <img src="{{ url_for('static', filename='images/accessories.jpg') }}" 
-                 alt="Accessories"
-                 style="
-                    width:100%;
-                    max-width:520px;
-                    border-radius:40px;
-                    object-fit:cover;
-                 ">
-        </div>
-
+      <a href="{{ url_for('view_items') }}" class="trackr-btn mt-4 d-inline-block">
+        Browse Items →
+      </a>
     </div>
+
+    <div class="col-lg-6 text-center animate-right">
+      <img src="{{ url_for('static', filename='images/accessories.jpg') }}" 
+           alt="Accessories"
+           class="section-image">
+    </div>
+
+  </div>
 </div>
 
 {% endblock %}

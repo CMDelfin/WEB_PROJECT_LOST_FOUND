@@ -1,25 +1,39 @@
 {% extends 'base.html' %}
 {% block content %}
 <body class="subpage">
-  <div class="row justify-content-center">
+  <div class="row justify-content-center mt-4">
     <div class="col-md-6">
-      <div class="card shadow-sm">
+      <div class="card shadow-sm p-3">
         <div class="card-body">
           <h3 class="card-title text-center text-primary mb-4">Add Lost or Found Item</h3>
+
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="mb-3">
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+
           <form method="POST">
             <div class="mb-3">
               <label>Item Name</label>
-              <input type="text" name="name" class="form-control" required>
+              <input type="text" name="name" class="form-control" placeholder="Enter the item name" maxlength="100" required>
             </div>
 
             <div class="mb-3">
               <label>Description</label>
-              <textarea name="description" class="form-control" rows="3" required></textarea>
+              <textarea name="description" class="form-control" rows="3" placeholder="Enter a brief description" maxlength="500" required></textarea>
             </div>
 
             <div class="mb-3">
               <label>Location</label>
-              <input type="text" name="location" class="form-control" required>
+              <input type="text" name="location" class="form-control" placeholder="Where did you find/lose it?" maxlength="150" required>
             </div>
 
             <div class="mb-3">
@@ -40,7 +54,10 @@
               </select>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">Submit Item</button>
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary flex-fill">Submit Item</button>
+              <a href="{{ url_for('dashboard') }}" class="btn btn-secondary flex-fill">Cancel</a>
+            </div>
           </form>
         </div>
       </div>

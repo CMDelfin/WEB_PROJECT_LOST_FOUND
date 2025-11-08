@@ -1,14 +1,37 @@
 {% extends 'base.html' %}
 {% block content %}
-<body class="dashboard-page">
-  <h2 class="fw-bold text-primary mb-3">My Dashboard</h2>
+<div class="container py-4">
+  <h2 class="fw-bold text-primary mb-4 text-center">My Dashboard</h2>
 
-  <div class="mb-3">
-    <a href="{{ url_for('add_item') }}" class="btn btn-success">+ Add Item</a>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="mb-3">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <div class="d-flex flex-column mb-3 gap-2">
+    <a href="{{ url_for('add_item') }}" class="btn btn-success btn-sm btn-action w-auto">+ Add Item</a>
+
+    <form method="GET" action="{{ url_for('dashboard') }}">
+      <select name="category" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+        <option value="">All Categories</option>
+        {% for cat in ["Electronics", "Clothing", "Documents", "Accessories", "Bags", "Keys", "Pets", "Others"] %}
+          <option value="{{ cat }}" {% if request.args.get('category') == cat %}selected{% endif %}>{{ cat }}</option>
+        {% endfor %}
+      </select>
+    </form>
   </div>
 
   {% if items %}
-    <table class="table table-striped table-bordered align-middle">
+  <div class="table-responsive shadow-sm rounded-4 bg-white dark-mode-table p-3">
+    <table class="table table-striped table-bordered align-middle text-center">
       <thead class="table-primary">
         <tr>
           <th>ID</th>
@@ -16,6 +39,7 @@
           <th>Description</th>
           <th>Location</th>
           <th>Status</th>
+          <th>Category</th>
           <th>Resolved</th>
           <th>Date Reported</th>
           <th>Actions</th>
@@ -28,43 +52,42 @@
           <td>{{ item.name }}</td>
           <td>{{ item.description }}</td>
           <td>{{ item.location }}</td>
-          
           <td>
             {% if item.status == 'found' %}
-              <span class="badge bg-success">Found</span>
+              <span class="badge bg-success px-3 py-2 rounded-pill shadow-sm">Found</span>
             {% else %}
-              <span class="badge bg-warning text-dark">Lost</span>
+              <span class="badge bg-warning text-dark px-3 py-2 rounded-pill shadow-sm">Lost</span>
             {% endif %}
           </td>
-
+          <td>{{ item.category }}</td>
           <td>
             {% if item.is_resolved %}
-              <span class="badge bg-success">✅ Yes</span>
+              <span class="badge bg-success px-3 py-2 rounded-pill shadow-sm">Yes</span>
             {% else %}
-              <span class="badge bg-danger">❌ No</span>
+              <span class="badge bg-danger px-3 py-2 rounded-pill shadow-sm">No</span>
             {% endif %}
           </td>
-
+          <td>{{ item.date_reported.strftime('%Y-%m-%d') if item.date_reported else 'N/A' }}</td>
           <td>
-            {% if item.date_reported %}
-              {{ item.date_reported.strftime('%Y-%m-%d') }}
-            {% else %}
-              <em class="text-muted">N/A</em>
-            {% endif %}
-          </td>
-
-          <td>
-            <a href="{{ url_for('delete_item', item_id=item.id) }}" class="btn btn-sm btn-danger"
-              onclick="return confirm('Are you sure you want to delete this item?')">
-              Delete
-            </a>
+            <div class="d-flex flex-column gap-1">
+              <a href="{{ url_for('edit_item', item_id=item.id) }}" class="btn btn-sm btn-primary btn-action">Edit</a>
+              <a href="{{ url_for('delete_item', item_id=item.id) }}" class="btn btn-sm btn-danger btn-action"
+                 onclick="return confirm('Are you sure you want to delete this item?')">Delete</a>
+            </div>
           </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
+  </div>
   {% else %}
-    <p class="text-muted">You haven't reported any items yet.</p>
-</body>
-{% endif %}
+    <p class="text-muted text-center mt-4 fs-5">
+      {% if request.args.get('category') %}
+        No items found for category "<strong>{{ request.args.get('category') }}</strong>".
+      {% else %}
+        You haven't reported any items yet.
+      {% endif %}
+    </p>
+  {% endif %}
+</div>
 {% endblock %}

@@ -26,16 +26,22 @@
     <input 
       type="text"
       name="search"
-      class="form-control shadow-sm rounded-pill px-3"
-      placeholder="🔍 Search items by Item Name, Description, or Location..."
+      class="form-control shadow-sm rounded-pill px-1.75"
+      placeholder="Search by Name, Description, or Location..."
       value="{{ request.args.get('search', '') }}"
-      style="max-width: 485px;">
-    
+      style="max-width: 375px;">
+
     <select name="category" class="form-select shadow-sm rounded-pill px-3" style="max-width: 160px;">
       <option value="">All Categories</option>
       {% for cat in categories %}
         <option value="{{ cat }}" {% if request.args.get('category') == cat %}selected{% endif %}>{{ cat }}</option>
       {% endfor %}
+    </select>
+
+    <select name="status" class="form-select shadow-sm rounded-pill px-3" style="max-width: 140px;">
+      <option value="">All Status</option>
+      <option value="lost" {% if request.args.get('status') == 'lost' %}selected{% endif %}>Lost</option>
+      <option value="found" {% if request.args.get('status') == 'found' %}selected{% endif %}>Found</option>
     </select>
 
     <button type="submit" class="btn btn-primary rounded-pill px-4">Filter</button>
@@ -65,7 +71,6 @@
           <td class="text-muted">{{ item.description }}</td>
           <td>{{ item.location }}</td>
           <td>{{ item.category if item.category else 'N/A' }}</td>
-
           <td>
             {% if item.status == 'found' %}
               <span class="badge bg-success px-3 py-2 rounded-pill shadow-sm">Found</span>
@@ -73,7 +78,6 @@
               <span class="badge bg-warning text-dark px-3 py-2 rounded-pill shadow-sm">Lost</span>
             {% endif %}
           </td>
-
           <td>
             {% if item.is_resolved %}
               <span class="badge bg-success px-3 py-2 rounded-pill shadow-sm">Yes</span>
@@ -81,7 +85,6 @@
               <span class="badge bg-danger px-3 py-2 rounded-pill shadow-sm">No</span>
             {% endif %}
           </td>
-
           <td>
             {% if item.date_reported %}
               {{ item.date_reported.strftime('%Y-%m-%d') }}
@@ -89,7 +92,6 @@
               <em class="text-muted">N/A</em>
             {% endif %}
           </td>
-
           <td>{{ item.user.username if item.user else 'Unknown' }}</td>
         </tr>
         {% endfor %}

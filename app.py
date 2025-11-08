@@ -29,24 +29,23 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
 
 @app.route('/')
 def index():
     total_lost = Item.query.filter_by(status='lost').count()
     total_found = Item.query.filter_by(status='found').count()
-    total_returned = Item.query.filter_by(is_resolved=True).count()
+    total_resolved = Item.query.filter_by(is_resolved=True).count()
+    total_items = Item.query.count()
     return render_template(
         'index.html',
         total_lost=total_lost,
         total_found=total_found,
-        total_returned=total_returned
+        total_resolved=total_resolved,
+        total_items=total_items
     )
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -74,7 +73,6 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html')
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -90,22 +88,26 @@ def login():
         flash('Invalid email or password', 'danger')
     return render_template('login.html')
 
-
 @app.route('/logout')
 def logout():
     logout_user()
     flash('You have been logged out.', 'info')
     return redirect(url_for('index'))
 
-
 @app.route('/dashboard')
 @login_required
 def dashboard():
     if current_user.username.lower() == 'admin':
         return redirect(url_for('admin_dashboard'))
-    items = Item.query.filter_by(user_id=current_user.id).all()
-    return render_template('dashboard.html', items=items)
 
+    selected_category = request.args.get('category', '')
+
+    query = Item.query.filter_by(user_id=current_user.id)
+    if selected_category:
+        query = query.filter_by(category=selected_category)
+
+    items = query.all()
+    return render_template('dashboard.html', items=items)
 
 @app.route('/add_item', methods=['GET', 'POST'])
 @login_required
@@ -141,7 +143,6 @@ def add_item():
 
     return render_template('add_item.html', categories=categories)
 
-
 @app.route('/delete_item/<int:item_id>')
 @login_required
 def delete_item(item_id):
@@ -154,11 +155,11 @@ def delete_item(item_id):
     flash('Item deleted!', 'info')
     return redirect(url_for('dashboard'))
 
-
 @app.route('/view_items')
 def view_items():
     search = request.args.get('search', '')
     selected_category = request.args.get('category', '')
+    selected_status = request.args.get('status', '')
 
     query = Item.query
     if search:
@@ -169,6 +170,8 @@ def view_items():
         )
     if selected_category:
         query = query.filter_by(category=selected_category)
+    if selected_status:
+        query = query.filter_by(status=selected_status)
 
     items = query.all()
 
@@ -178,9 +181,9 @@ def view_items():
     ]
 
     total_items = len(items)
-    total_lost = Item.query.filter_by(status='lost').count()
-    total_found = Item.query.filter_by(status='found').count()
-    total_resolved = Item.query.filter_by(is_resolved=True).count()
+    total_lost = sum(1 for item in items if item.status == 'lost')
+    total_found = sum(1 for item in items if item.status == 'found')
+    total_resolved = sum(1 for item in items if item.is_resolved)
 
     return render_template(
         'view_items.html',
@@ -190,9 +193,36 @@ def view_items():
         total_found=total_found,
         total_resolved=total_resolved,
         categories=categories,
-        selected_category=selected_category
+        selected_category=selected_category,
+        selected_status=selected_status
     )
 
+@app.route('/edit_item/<int:item_id>', methods=['GET', 'POST'])
+@login_required
+def edit_item(item_id):
+    item = Item.query.get_or_404(item_id)
+    if item.user_id != current_user.id:
+        flash("You can't edit someone else's item!", 'danger')
+        return redirect(url_for('dashboard'))
+
+    categories = [
+        "Electronics", "Clothing", "Documents",
+        "Accessories", "Bags", "Keys", "Pets", "Others"
+    ]
+
+    if request.method == 'POST':
+        item.name = request.form['name']
+        item.description = request.form['description']
+        item.location = request.form['location']
+        item.status = request.form['status']
+        item.category = request.form['category']
+        db.session.commit()
+        flash('Item updated successfully!', 'success')
+        return redirect(url_for('dashboard'))
+
+    return render_template('edit_items.html', item=item, categories=categories)
+
+# ================== ADMIN ROUTES ==================
 
 @app.route('/admin')
 @login_required
@@ -223,14 +253,13 @@ def admin_dashboard():
         selected_category=selected_category
     )
 
-
-
 @app.route('/admin/edit_item/<int:item_id>', methods=['GET', 'POST'])
 @login_required
 def admin_edit_item(item_id):
     if current_user.username.lower() != 'admin':
         flash('Access denied.', 'danger')
         return redirect(url_for('dashboard'))
+
     item = Item.query.get_or_404(item_id)
     categories = [
         "Electronics", "Clothing", "Documents",
@@ -247,7 +276,6 @@ def admin_edit_item(item_id):
         return redirect(url_for('admin_dashboard'))
     return render_template('admin_edit_item.html', item=item, categories=categories)
 
-
 @app.route('/admin/delete_item/<int:item_id>')
 @login_required
 def admin_delete_item(item_id):
@@ -259,7 +287,6 @@ def admin_delete_item(item_id):
     db.session.commit()
     flash('Item deleted successfully.', 'info')
     return redirect(url_for('admin_dashboard'))
-
 
 @app.route('/admin/toggle_resolved/<int:item_id>', methods=['POST'])
 @login_required
@@ -273,6 +300,17 @@ def admin_toggle_resolved(item_id):
     flash('Item status updated successfully!', 'success')
     return redirect(url_for('admin_dashboard'))
 
+@app.route('/resolve_item/<int:item_id>', methods=['POST'])
+@login_required
+def resolve_item(item_id):
+    if current_user.username.lower() != 'admin':
+        flash("Unauthorized access!", 'danger')
+        return redirect(url_for('dashboard'))
+    item = Item.query.get_or_404(item_id)
+    item.is_resolved = True
+    db.session.commit()
+    flash(f"Item '{item.name}' has been marked as resolved.", 'success')
+    return redirect(url_for('admin_dashboard'))
 
 if __name__ == '__main__':
     app.run(debug=True)

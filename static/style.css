@@ -176,7 +176,6 @@ footer {
   margin: 0 auto 4px auto;
 }
 
-/* Universal Buttons */
 .btn,
 button,
 input[type="submit"],
@@ -197,7 +196,6 @@ input[type="submit"],
   text-align: center;
 }
 
-/* Light Mode Buttons */
 .btn,
 button,
 input[type="submit"],
@@ -224,7 +222,6 @@ input[type="submit"]:hover,
   transform: translateY(-1px);
 }
 
-/* Dark Mode Buttons */
 body.dark-mode .btn,
 body.dark-mode button,
 body.dark-mode input[type="submit"],
@@ -251,13 +248,11 @@ body.dark-mode .sidebar input[type="submit"]:hover {
   transform: translateY(-1px);
 }
 
-/* Global Dark Mode Text */
 body.dark-mode,
 body.dark-mode * {
   color: #ffffff !important;
 }
 
-/* Sidebar close button smaller */
 #closeSidebar {
   background: transparent !important;
   border: none !important;
@@ -265,7 +260,7 @@ body.dark-mode * {
   position: absolute;
   top: 12px;
   right: 12px;
-  font-size: 0.9rem; /* smaller */
+  font-size: 0.9rem;
   opacity: 0.8;
   cursor: pointer;
   width: 24px;
@@ -279,7 +274,6 @@ body.dark-mode #closeSidebar {
   color: #ffffff !important;
 }
 
-/* Dark Mode Backgrounds */
 body.dark-mode {
   background: linear-gradient(180deg, #0f0f0f 0%, #1a1a1a 100%);
 }
@@ -340,7 +334,6 @@ body.dark-mode footer {
   border-top: 1px solid rgba(255,255,255,0.1);
 }
 
-/* Navbar Styles */
 .navbar-modern-full {
   width: 100%;
   background: transparent;
@@ -411,4 +404,174 @@ body.dark-mode .nav-btn:hover {
 
 body.dark-mode .navbar-modern-full {
   background: transparent !important;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(60px);
+  transition: all 0.9s ease;
+}
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.animate-left {
+  opacity: 0;
+  transform: translateX(-60px);
+  transition: all 1s ease;
+}
+.animate-right {
+  opacity: 0;
+  transform: translateX(60px);
+  transition: all 1s ease;
+}
+.reveal.active .animate-left,
+.reveal.active .animate-right {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.hero-section {
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  text-align: left;
+}
+
+.hero-section h1 {
+  font-size: 3.5rem;
+  line-height: 1.2;
+}
+
+.hero-section p {
+  font-size: 1.1rem;
+  max-width: 540px;
+  color: #555;
+}
+
+.hero-image {
+  width: 100%;
+  max-width: 580px;
+  border-radius: 40px;
+  object-fit: cover;
+}
+
+.section-image {
+  width: 100%;
+  max-width: 520px;
+  border-radius: 30px;
+  object-fit: cover;
+}
+
+.trackr-btn {
+  background-color: #007bff;
+  color: #fff;
+  font-weight: 500;
+  border-radius: 30px;
+  padding: 12px 28px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.trackr-btn:hover {
+  background-color: #0056b3;
+}
+
+body.dark-mode {
+  background: linear-gradient(180deg, #111 0%, #222 100%);
+  color: #f2f2f2;
+}
+
+body.dark-mode p {
+  color: #ccc;
+}
+
+body.dark-mode .trackr-btn {
+  background-color: #0d6efd;
+}
+
+#loading-screen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+body.loaded #loading-screen {
+  opacity: 0;
+  visibility: hidden;
+}
+
+#backToTop {
+  position: fixed;
+  bottom: 40px;
+  right: 30px;
+  display: none;
+  width: 45px;
+  height: 45px;
+  border-radius: 45%;
+  background-color: #007bff;
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+  z-index: 1500;
+}
+#backToTop.show {
+  display: block;
+}
+#backToTop:hover {
+  transform: translateY(-2px);
+  opacity: 0.85;
+}
+
+#toast-container .toast {
+  min-width: 250px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+#toast-container .toast .toast-body {
+  font-size: 14px;
+  padding: 10px 15px;
+}
+
+.light-mode-bg {
+  background-color: #ffffff;
+}
+
+.dark-mode-bg {
+  background-color: #343a40 !important;
+}
+
+.dark-mode-text {
+  color: #f8f9fa !important;
+}
+
+.btn-action {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  min-width: 80px;
+}
+
+.btn-add {
+  padding: 8px 20px;
+  font-size: 0.9rem;
+  border-radius: 10px;
+}
+
+.btn-action {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  min-width: 80px;
 }

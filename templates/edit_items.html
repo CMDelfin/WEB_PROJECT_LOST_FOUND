@@ -8,25 +8,42 @@
           <h3 class="card-title text-center text-primary mb-4">Edit Item</h3>
           <form method="POST">
             <div class="mb-3">
-              <label>Item Name</label>
-              <input type="text" name="name" class="form-control" value="{{ item.name }}" required>
+              <label for="name" class="form-label">Item Name</label>
+              <input type="text" id="name" name="name" class="form-control" value="{{ item.name }}" required>
             </div>
+
             <div class="mb-3">
-              <label>Description</label>
-              <textarea name="description" class="form-control" rows="3" required>{{ item.description }}</textarea>
+              <label for="description" class="form-label">Description</label>
+              <textarea id="description" name="description" class="form-control" rows="3" required>{{ item.description }}</textarea>
             </div>
+
             <div class="mb-3">
-              <label>Location</label>
-              <input type="text" name="location" class="form-control" value="{{ item.location }}" required>
+              <label for="location" class="form-label">Location</label>
+              <input type="text" id="location" name="location" class="form-control" value="{{ item.location }}" required>
             </div>
+
             <div class="mb-3">
-              <label>Status</label>
-              <select name="status" class="form-select">
+              <label for="status" class="form-label">Status</label>
+              <select id="status" name="status" class="form-select" required>
                 <option value="lost" {% if item.status == 'lost' %}selected{% endif %}>Lost</option>
                 <option value="found" {% if item.status == 'found' %}selected{% endif %}>Found</option>
               </select>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Update Item</button>
+
+            <div class="mb-3">
+              <label for="category" class="form-label">Category</label>
+              <select id="category" name="category" class="form-select" required>
+                <option value="">Select Category</option>
+                {% for category in categories %}
+                  <option value="{{ category }}" {% if category == item.category %}selected{% endif %}>{{ category }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+              <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary">Update Item</button>
+            </div>
           </form>
         </div>
       </div>

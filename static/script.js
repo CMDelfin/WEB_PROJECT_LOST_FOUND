@@ -123,3 +123,30 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+window.addEventListener('scroll', revealElements);
+
+function revealElements() {
+  const reveals = document.querySelectorAll('.reveal');
+
+  reveals.forEach(section => {
+    const windowHeight = window.innerHeight;
+    const revealTop = section.getBoundingClientRect().top;
+    const revealPoint = 120;
+
+    if (revealTop < windowHeight - revealPoint) {
+      section.classList.add('active');
+    } else {
+      section.classList.remove('active');
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', revealElements);
+
+const themeToggle = document.getElementById('theme-toggle');
+if (themeToggle) {
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+  });
+}
