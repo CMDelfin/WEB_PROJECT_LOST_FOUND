@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row" style="height: 80vh;">
+        <div class="col-md-3 border-end overflow-auto {% if dark_mode %}bg-dark{% endif %}" style="height: 100%;">
+            <h5 class="mt-2 {% if dark_mode %}text-light{% endif %}">Admin</h5>
+            {% set unread_count = messages | selectattr('sender_id', 'equalto', selected_user.id if selected_user else 1) | selectattr('is_read', 'equalto', False) | list | length %}
+            <ul class="list-group {% if dark_mode %}bg-dark{% endif %}">
+                <li class="list-group-item d-flex justify-content-between align-items-center active {% if dark_mode %}bg-dark text-light{% endif %}">
+                    Admin
+                    {% if unread_count > 0 %}
+                    <span class="badge bg-danger rounded-pill">{{ unread_count }}</span>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-md-9 d-flex flex-column {% if dark_mode %}bg-dark{% endif %}" style="height: 100%;">
+            <h5 class="mt-2 {% if dark_mode %}text-light{% endif %}">Conversation with Admin</h5>
+            <div class="flex-grow-1 overflow-auto border p-2 mb-2 {% if dark_mode %}bg-dark text-light{% else %}bg-light{% endif %}" id="message-box">
+                {% for msg in messages %}
+                <div class="mb-2 text-{{ 'end' if msg.sender_id == current_user.id else 'start' }}">
+                    <div class="d-inline-block p-2 rounded {% if msg.sender_id == current_user.id %}bg-primary text-white{% else %} {% if dark_mode %}bg-secondary text-light{% else %}bg-light{% endif %}{% endif %}">
+                        {{ msg.content }}
+                        <div class="small text-muted">{{ msg.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <form method="POST" class="mt-auto d-flex">
+                <input type="hidden" name="receiver_id" value="{{ admin_user.id }}">
+                <input type="text" name="content" class="form-control me-2 {% if dark_mode %}bg-dark text-light border-light{% else %}bg-white text-dark{% endif %}" placeholder="Type a message to Admin..." required>
+                <button type="submit" class="btn btn-primary">Send</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const messageBox = document.getElementById('message-box');
+    if (messageBox) {
+        messageBox.scrollTop = messageBox.scrollHeight;
+    }
+</script>
+{% endblock %}

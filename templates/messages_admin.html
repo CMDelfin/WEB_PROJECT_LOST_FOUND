@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="admin-chat-container" style="height: calc(100vh - 78px); margin-top: 100px;">
+
+  <div class="user-list col-3 border-end d-flex flex-column p-2">
+    <h5 class="fw-bold text-center mb-3">Users</h5>
+    <div class="list-group flex-grow-1 overflow-auto">
+      {% for user in users %}
+        <a href="{{ url_for('admin_messages', selected_user_id=user.id) }}"
+           class="list-group-item list-group-item-action d-flex align-items-center
+                  {% if selected_user and user.id == selected_user.id %}active{% endif %}">
+          <div class="rounded-circle profile-placeholder me-2" style="width:35px;height:35px;">
+            {{ user.username[:2]|upper }}
+          </div>
+          <span class="flex-grow-1">{{ user.username }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="messages-column col-9 d-flex flex-column p-3">
+    {% if selected_user %}
+      <div class="messages-header mb-3 flex-shrink-0">
+        <h5 class="fw-bold mb-0">Conversation with {{ selected_user.username }}</h5>
+      </div>
+
+      <div class="messages-container overflow-auto border rounded p-3 mb-2" id="messagesContainer" style="flex: 1 1 auto; min-height: 200px; max-height: 55vh;">
+        {% if messages %}
+          {% for msg in messages %}
+            <div class="d-flex mb-2 {% if msg.sender_id == current_user.id %}justify-content-end{% else %}justify-content-start{% endif %}">
+              <div class="message-bubble {% if msg.sender_id == current_user.id %}message-right{% else %}message-left{% endif %}">
+                <small class="fw-bold d-block">
+                  {% if msg.sender_id != current_user.id %}
+                    {{ selected_user.username }}
+                  {% else %}
+                    You
+                  {% endif %}
+                </small>
+                <span>{{ msg.content }}</span><br>
+                <small class="text-muted">{{ msg.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted text-center mt-3">No messages yet.</p>
+        {% endif %}
+      </div>
+
+      <div class="message-input flex-shrink-0">
+        <form method="POST" action="{{ url_for('admin_send_message') }}" class="d-flex">
+          <input type="hidden" name="receiver_id" value="{{ selected_user.id }}">
+          <input type="text" name="content" class="form-control me-2" placeholder="Type a message..." required>
+          <button type="submit" class="btn dark-mode-btn">Send</button>
+        </form>
+      </div>
+    {% else %}
+      <p class="text-muted text-center mt-4 fs-5">Select a user to view the conversation.</p>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+  const messagesContainer = document.getElementById('messagesContainer');
+  if (messagesContainer) {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+</script>
+{% endblock %}
