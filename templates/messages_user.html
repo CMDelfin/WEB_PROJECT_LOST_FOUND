@@ -1,46 +1,67 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container-fluid">
-    <div class="row" style="height: 80vh;">
-        <div class="col-md-3 border-end overflow-auto {% if dark_mode %}bg-dark{% endif %}" style="height: 100%;">
-            <h5 class="mt-2 {% if dark_mode %}text-light{% endif %}">Admin</h5>
-            {% set unread_count = messages | selectattr('sender_id', 'equalto', selected_user.id if selected_user else 1) | selectattr('is_read', 'equalto', False) | list | length %}
-            <ul class="list-group {% if dark_mode %}bg-dark{% endif %}">
-                <li class="list-group-item d-flex justify-content-between align-items-center active {% if dark_mode %}bg-dark text-light{% endif %}">
-                    Admin
-                    {% if unread_count > 0 %}
-                    <span class="badge bg-danger rounded-pill">{{ unread_count }}</span>
-                    {% endif %}
-                </li>
-            </ul>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<div class="d-flex justify-content-center align-items-start" style="padding-top: 20px;">
+
+    <div class="user-chat-container messages-page d-flex flex-column" 
+         style="height: 500px; width: 1000px; border-radius: 12px; overflow: hidden;">
+
+        <div class="messages-header flex-shrink-0 p-3" style="border-bottom: 1px solid #ccc;">
+            <h5 class="fw-bold mb-0">Conversation with Admin</h5>
         </div>
 
-        <div class="col-md-9 d-flex flex-column {% if dark_mode %}bg-dark{% endif %}" style="height: 100%;">
-            <h5 class="mt-2 {% if dark_mode %}text-light{% endif %}">Conversation with Admin</h5>
-            <div class="flex-grow-1 overflow-auto border p-2 mb-2 {% if dark_mode %}bg-dark text-light{% else %}bg-light{% endif %}" id="message-box">
-                {% for msg in messages %}
-                <div class="mb-2 text-{{ 'end' if msg.sender_id == current_user.id else 'start' }}">
-                    <div class="d-inline-block p-2 rounded {% if msg.sender_id == current_user.id %}bg-primary text-white{% else %} {% if dark_mode %}bg-secondary text-light{% else %}bg-light{% endif %}{% endif %}">
-                        {{ msg.content }}
-                        <div class="small text-muted">{{ msg.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
+        <div id="messagesContainer" class="messages-container overflow-auto flex-grow-1 p-3 d-flex flex-column">
+            {% if messages %}
+                {% for msg in messages|reverse %}
+                    <div class="d-flex mb-2
+                        {% if msg.sender_id == current_user.id %}justify-content-end{% else %}justify-content-start{% endif %}">
+                        <div class="message-bubble {% if msg.sender_id == current_user.id %}message-right{% else %}message-left{% endif %}">
+                            <small class="fw-bold d-block mb-1">
+                                {% if msg.sender_id == current_user.id %}
+                                    You
+                                {% else %}
+                                    Admin
+                                {% endif %}
+                            </small>
+                            {{ msg.content }}
+                        </div>
                     </div>
-                </div>
                 {% endfor %}
-            </div>
+            {% else %}
+                <p class="text-muted text-center mt-3">No messages yet. Say hello to Admin!</p>
+            {% endif %}
+        </div>
 
-            <form method="POST" class="mt-auto d-flex">
+        <div class="message-input flex-shrink-0 p-3">
+            <form method="POST" action="{{ url_for('messages') }}" id="userMessageForm">
                 <input type="hidden" name="receiver_id" value="{{ admin_user.id }}">
-                <input type="text" name="content" class="form-control me-2 {% if dark_mode %}bg-dark text-light border-light{% else %}bg-white text-dark{% endif %}" placeholder="Type a message to Admin..." required>
-                <button type="submit" class="btn btn-primary">Send</button>
+                <div class="input-wrapper d-flex">
+                    <input type="text" name="content" placeholder="Type a message..." required class="form-control me-2" style="border: none; box-shadow: none;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
             </form>
         </div>
+
     </div>
 </div>
 
 <script>
-    const messageBox = document.getElementById('message-box');
-    if (messageBox) {
-        messageBox.scrollTop = messageBox.scrollHeight;
-    }
+const messagesContainer = document.getElementById('messagesContainer');
+if(messagesContainer){
+
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+const userForm = document.getElementById('userMessageForm');
+if(userForm){
+    userForm.addEventListener('submit', () => {
+        setTimeout(() => {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }, 100);
+    });
+}
 </script>
 {% endblock %}
