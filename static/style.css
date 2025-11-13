@@ -158,6 +158,8 @@ footer {
   color: #777;
   margin-top: auto;
   transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 
 .profile-placeholder {
@@ -205,7 +207,7 @@ body.dark-mode .btn:hover, body.dark-mode button:hover, body.dark-mode input[typ
   transform: translateY(-1px);
 }
 
-body.dark-mode, body.dark-mode * { color: #ffffff !important; }
+body.dark-mode * { color: #ffffff !important; }
 
 #closeSidebar {
   background: transparent !important;
@@ -310,8 +312,6 @@ body.dark-mode .navbar-modern-full .navbar-inner { background: #212121; }
 
 body.dark-mode .nav-btn { background: #303030 !important; color: #ffffff !important; }
 body.dark-mode .nav-btn:hover { background: #3b3b3b !important; }
-
-body { padding-top: 100px; }
 
 .reveal {
   opacity: 0;
@@ -469,51 +469,6 @@ body.loaded #loading-screen {
 
 body.dark-mode .alert { color: #fff; }
 
-html,
-body {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.message-bubble {
-    padding: 10px 15px;
-    border-radius: 15px;
-    max-width: 70%;
-    margin-bottom: 10px;
-    word-wrap: break-word;
-}
-
-.message-left {
-    background-color: #e9ecef; 
-    color: #000;
-    margin-right: auto;
-}
-
-.message-right {
-    background-color: #0d6efd;
-    color: #fff;
-    margin-left: auto;
-}
-
-body.dark-mode .message-left {
-    background-color: #343a40;
-    color: #fff;
-}
-
-body.dark-mode .message-right {
-    background-color: #0d6efd; 
-    color: #fff;
-}
-
-body.dark-mode .list-group-item.active {
-    background-color: #343a40 !important; 
-    color: #f8f9fa !important; 
-}
-
-body.dark-mode .list-group-item.active a {
-    color: #f8f9fa !important;   
-}
-
 .dark-mode .admin-messages-container,
 .dark-mode .admin-messages-container * {
     color: #ffffff !important; 
@@ -580,26 +535,6 @@ body.dark-mode #messagesContainer {
     color: #ffffff;
 }
 
-.message-bubble {
-    padding: 10px 15px;
-    border-radius: 15px;
-    max-width: 70%;
-    margin-bottom: 10px;
-    word-wrap: break-word;
-}
-
-.message-left {
-    background-color: #e9ecef; 
-    color: #000;
-    margin-right: auto;
-}
-
-.message-right {
-    background-color: #0d6efd;
-    color: #fff;
-    margin-left: auto;
-}
-
 body.dark-mode .message-left {
     background-color: #343a40;
     color: #fff;
@@ -608,16 +543,6 @@ body.dark-mode .message-left {
 body.dark-mode .message-right {
     background-color: #0d6efd; 
     color: #fff;
-}
-
-.profile-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: linear-gradient(90deg, #3A8DFF 0%, #4FC3F7 100%);
-    color: #fff;
-    font-weight: 600;
 }
 
 body.messages-page {
@@ -675,82 +600,6 @@ body.messages-page .messages-container {
     flex-direction: column;
     margin-bottom: 100px;
 }
-
-.message-bubble {
-    max-width: 60%;
-    padding: 10px 15px;
-    border-radius: 15px;
-    word-wrap: break-word;
-}
-
-.message-left {
-    background-color: #2b2b2b;
-    color: #fff;
-    align-self: flex-start;
-}
-
-.message-right {
-    background-color: #0d6efd;
-    color: #fff;
-    align-self: flex-end;
-}
-
-body.messages-page {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    padding: 0 !important;
-    overflow: hidden;
-}
-
-body.messages-page .admin-chat-container {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-    margin-top: 75px;
-}
-
-body.messages-page .user-list {
-    display: flex;
-    flex-direction: column;
-    width: 250px;
-    border-right: 1px solid #ccc;
-    height: 100%;
-}
-
-body.messages-page .user-list .list-group {
-    flex-grow: 1;
-    min-height: 0;
-    overflow-y: auto;
-}
-
-body.messages-page .messages-column {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    padding: 1rem;
-}
-
-body.messages-page .messages-header {
-    flex-shrink: 0;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid #ccc;
-    font-weight: 600;
-    font-size: 1rem;
-}
-
-body.messages-page .messages-container {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    background-color: #111;
-    border-radius: 12px;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 80px; 
-}
-
 
 .message-bubble {
     max-width: 60%;
@@ -844,11 +693,6 @@ body.dark-mode .message-input button {
     background-color: #0d6efd;
 }
 
-footer {
-    position: relative;
-    z-index: 1;
-}
-
 body.dark-mode .container.reveal .row.text-center .col-md-4 .shadow-sm {
     background-color: #2a2a2a !important; 
     color: #ffffff; 
@@ -920,4 +764,55 @@ body.dark-mode #otpModal .btn:hover {
 }
 .modal {
     z-index: 1050 !important;
+}
+
+.dark-mode-modal {
+    background-color: #2c2c2c !important; 
+    color: #f1f1f1 !important; 
+}
+
+.dark-mode-modal .modal-header,
+.dark-mode-modal .modal-footer {
+    border-color: #444; 
+}
+
+.dark-mode-modal .modal-title {
+    color: #f1f1f1;
+}
+
+.dark-mode-modal p,
+.dark-mode-modal span,
+.dark-mode-modal label {
+    color: #e0e0e0;
+}
+
+.dark-mode-modal input.form-control {
+    background-color: #3c3c3c;
+    color: #f1f1f1;
+    border: 1px solid #555;
+}
+
+.dark-mode-modal input.form-control::placeholder {
+    color: #aaa;
+}
+
+.dark-mode-modal .text-danger {
+    color: #ff6b6b;
+}
+
+.dark-mode-modal .btn.btn-primary,
+.btn-dark-mode {
+    background-color: #4a90e2;
+    color: #fff;
+    border: 1px solid #357ABD;
+}
+
+.dark-mode-modal .btn.btn-primary:hover,
+.btn-dark-mode:hover {
+    background-color: #357ABD;
+    color: #fff;
+}
+
+.dark-mode-modal .btn-close {
+    filter: invert(1); 
 }

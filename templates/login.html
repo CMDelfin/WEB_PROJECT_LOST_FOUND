@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="auth-wrapper d-flex justify-content-center align-items-center" style="min-height: 50vh;">
+<div class="auth-wrapper d-flex justify-content-center align-items-center" style="min-height: 45vh;">
 
   <div class="card auth-card shadow-lg rounded-4 p-4 form-card" style="width: 100%; max-width: 400px;">
 
-    <div class="text-center mb-4">
+    <div class="text-center mb-2">
       <img src="{{ url_for('static', filename='images/lostfoundlogo.png') }}" 
            alt="Trackr Logo" width="80"
            class="mb-3 rounded-circle border shadow-sm logo-border">
@@ -15,20 +15,24 @@
 
     <form id="loginForm" method="POST" novalidate>
 
-      <div class="mb-3">
+      <div class="mb-1">
         <label for="email" class="form-label fw-semibold auth-label">Email address</label>
         <input type="email" name="email" id="email" 
                class="form-control auth-input" 
                placeholder="Email" required>
-          <div class="invalid-feedback">Please enter a valid email.</div>
+        <div class="invalid-feedback">Please enter a valid email.</div>
       </div>
 
-      <div class="mb-3"> 
+      <div class="mb-1"> 
         <label for="password" class="form-label fw-semibold auth-label">Password</label>
         <input type="password" name="password" id="password" 
                class="form-control auth-input"
                placeholder="Password" required>
         <div class="invalid-feedback">Password cannot be empty.</div>
+      </div>
+
+      <div class="d-flex justify-content-end mb-1">
+        <a href="#" id="forgotPasswordLink" class="auth-link small">Forgot Password?</a>
       </div>
 
       <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-pill shadow-sm">
@@ -41,6 +45,51 @@
       <a href="{{ url_for('register') }}" class="auth-link">Register here</a>.
     </p>
 
+  </div>
+</div>
+
+<div class="modal fade" id="forgotModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="forgotModalLabel">Reset Password</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="forgotModalCloseBtn"></button>
+      </div>
+
+      <div class="modal-body">
+        <div id="fp-step-email">
+          <p>Enter the email associated with your account. We'll send a 6-digit OTP to that address.</p>
+          <input type="email" id="fp-email" class="form-control" placeholder="you@example.com">
+          <div id="fp-email-error" class="text-danger mt-2" style="display:none;"></div>
+        </div>
+
+        <div id="fp-step-otp" style="display:none;">
+          <p>Enter the 6-digit OTP sent to <span id="fp-sent-email" class="fw-semibold"></span>:</p>
+          <input type="text" id="fp-otp" class="form-control text-center" maxlength="6" placeholder="Enter OTP">
+          <div id="fp-otp-error" class="text-danger mt-2" style="display:none;"></div>
+        </div>
+
+        <div id="fp-step-newpass" style="display:none;">
+          <p>Enter your new password:</p>
+          <input type="password" id="fp-new-password" class="form-control" placeholder="New password (min 6 chars)">
+          <div id="fp-newpass-error" class="text-danger mt-2" style="display:none;"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer flex-column">
+        <button type="button" id="fp-send-otp-btn" class="btn btn-primary w-100 mb-2">Send OTP</button>
+
+        <button type="button" id="fp-verify-otp-btn" class="btn btn-primary w-100 mb-2" style="display:none;">
+          <span id="fp-verify-text">Verify OTP</span>
+          <span id="fp-verify-spinner" class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
+        </button>
+
+        <button type="button" id="fp-reset-pass-btn" class="btn btn-primary w-100" style="display:none;">
+          <span id="fp-reset-text">Reset Password</span>
+          <span id="fp-reset-spinner" class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 

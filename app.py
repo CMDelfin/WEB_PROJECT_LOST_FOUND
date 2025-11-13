@@ -135,6 +135,96 @@ def verify_otp():
 
     return jsonify({'status': 'success', 'message': 'Registration complete'})
 
+@app.route('/forgot_password', methods=['POST'])
+def forgot_password():
+    data = request.get_json()
+    if not data or 'email' not in data:
+        return jsonify({'status': 'error', 'message': 'Email required'})
+
+    email = data.get('email').strip().lower()
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({'status': 'error', 'message': "No account found with that email."})
+
+    otp = random.randint(100000, 999999)
+    session['reset_email'] = email
+    session['reset_otp'] = str(otp)
+    session.pop('reset_verified', None)
+
+    try:
+        msg = Message(
+            subject="Trackr - Password Reset OTP",
+            sender=app.config['MAIL_DEFAULT_SENDER'],
+            recipients=[email],
+            body=f"""Hello {user.username},
+
+            We received a request to reset your Trackr password. Use the following One-Time Password (OTP) to proceed:
+
+            {otp}
+
+            If you didn't request this, please ignore this message.
+
+            Best,
+            Trackr Team
+            """
+        )
+        mail.send(msg)
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Failed to send OTP: {e}'})
+
+    return jsonify({'status': 'otp_sent'})
+
+
+@app.route('/verify_reset_otp', methods=['POST'])
+def verify_reset_otp():
+    data = request.get_json()
+    if not data or 'otp' not in data:
+        return jsonify({'status': 'error', 'message': 'OTP required'})
+
+    entered = data.get('otp', '').strip()
+    if 'reset_otp' not in session or 'reset_email' not in session:
+        return jsonify({'status': 'error', 'message': 'No password reset in progress'})
+
+    if entered != session.get('reset_otp'):
+        return jsonify({'status': 'error', 'message': 'Invalid OTP'})
+    
+    session['reset_verified'] = True
+    session.pop('reset_otp', None)
+
+    return jsonify({'status': 'verified'})
+
+
+@app.route('/reset_password', methods=['POST'])
+def reset_password():
+    data = request.get_json()
+    if not data or 'new_password' not in data:
+        return jsonify({'status': 'error', 'message': 'New password required'})
+
+    if 'reset_verified' not in session or not session.get('reset_verified'):
+        return jsonify({'status': 'error', 'message': 'OTP not verified'})
+
+    email = session.get('reset_email')
+    if not email:
+        return jsonify({'status': 'error', 'message': 'No reset email found'})
+
+    new_password = data.get('new_password', '').strip()
+    if len(new_password) < 6:
+        return jsonify({'status': 'error', 'message': 'Password must be at least 6 characters'})
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({'status': 'error', 'message': 'User not found'})
+
+    hashed = bcrypt.generate_password_hash(new_password).decode('utf-8')
+    user.password = hashed
+    db.session.commit()
+
+    session.pop('reset_email', None)
+    session.pop('reset_verified', None)
+    session.pop('reset_otp', None)
+
+    return jsonify({'status': 'success', 'message': 'Password updated'})
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
