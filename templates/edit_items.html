@@ -1,53 +1,85 @@
 {% extends 'base.html' %}
 {% block content %}
 <body class="subpage">
-  <div class="row justify-content-center">
+
+  <div class="row justify-content-center mt-4">
     <div class="col-md-6">
-      <div class="card shadow-sm">
+      <div class="card shadow-sm p-3">
         <div class="card-body">
           <h3 class="card-title text-center text-primary mb-4">Edit Item</h3>
-          <form method="POST">
+
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="mb-3">
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+
+          <form method="POST" enctype="multipart/form-data">
+
             <div class="mb-3">
-              <label for="name" class="form-label">Item Name</label>
-              <input type="text" id="name" name="name" class="form-control" value="{{ item.name }}" required>
+              <label>Item Name</label>
+              <input type="text" name="name" class="form-control" value="{{ item.name }}" required>
             </div>
 
             <div class="mb-3">
-              <label for="description" class="form-label">Description</label>
-              <textarea id="description" name="description" class="form-control" rows="3" required>{{ item.description }}</textarea>
+              <label>Description</label>
+              <textarea name="description" class="form-control" rows="3" required>{{ item.description }}</textarea>
             </div>
 
             <div class="mb-3">
-              <label for="location" class="form-label">Location</label>
-              <input type="text" id="location" name="location" class="form-control" value="{{ item.location }}" required>
+              <label>Location</label>
+              <input type="text" name="location" class="form-control" value="{{ item.location }}" required>
             </div>
 
             <div class="mb-3">
-              <label for="status" class="form-label">Status</label>
-              <select id="status" name="status" class="form-select" required>
+              <label>Status</label>
+              <select name="status" class="form-select" required>
                 <option value="lost" {% if item.status == 'lost' %}selected{% endif %}>Lost</option>
                 <option value="found" {% if item.status == 'found' %}selected{% endif %}>Found</option>
               </select>
             </div>
 
             <div class="mb-3">
-              <label for="category" class="form-label">Category</label>
-              <select id="category" name="category" class="form-select" required>
-                <option value="">Select Category</option>
-                {% for category in categories %}
-                  <option value="{{ category }}" {% if category == item.category %}selected{% endif %}>{{ category }}</option>
+              <label>Category</label>
+              <select name="category" class="form-select" required>
+                {% for cat in categories %}
+                  <option value="{{ cat }}" {% if item.category == cat %}selected{% endif %}>{{ cat }}</option>
                 {% endfor %}
               </select>
             </div>
 
-            <div class="d-flex justify-content-between mt-4">
-              <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
-              <button type="submit" class="btn btn-primary">Update Item</button>
+            <div class="mb-3">
+              <label>Current Image</label><br>
+              {% if item.image_filename %}
+                <img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}"
+                     class="img-thumbnail mb-2" style="max-height:150px;">
+              {% else %}
+                <p class="text-muted">No image uploaded</p>
+              {% endif %}
             </div>
+
+            <div class="mb-3">
+              <label>Replace Image</label>
+              <input type="file" name="image" accept="image/*" class="form-control">
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary flex-fill">Save Changes</button>
+              <a href="{{ url_for('dashboard') }}" class="btn btn-secondary flex-fill">Cancel</a>
+            </div>
+
           </form>
         </div>
       </div>
     </div>
   </div>
+
 </body>
 {% endblock %}

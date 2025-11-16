@@ -24,6 +24,7 @@ class Item(db.Model):
     date_reported = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     is_resolved = db.Column(db.Boolean, default=False)
+    image_filename = db.Column(db.String(255))
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)

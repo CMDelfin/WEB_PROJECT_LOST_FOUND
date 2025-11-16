@@ -7,6 +7,7 @@ from flask_mail import Mail, Message
 from models import db, User, Item, Message as ChatMessage, Contact
 from dotenv import load_dotenv
 from datetime import datetime
+from werkzeug.utils import secure_filename
 import pytz
 import os
 import random
@@ -56,6 +57,16 @@ def to_local_time(dt):
         dt = pytz.UTC.localize(dt)
     return dt.astimezone(LOCAL_TZ)
 
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'png','jpg','jpeg','gif'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -67,7 +78,7 @@ def register():
             phone = data.get('phone')
             password = data.get('password', '')
 
-            if username.lower() == 'admin' or User.query.filter_by(email=email).first() or User.query.filter_by(username=username).first():
+            if username.lower() == 'Admin' or User.query.filter_by(email=email).first() or User.query.filter_by(username=username).first():
                 return jsonify({'status': 'error', 'message': 'Username or email already taken'})
 
             otp = random.randint(100000, 999999)
@@ -219,14 +230,65 @@ def reset_password():
     user.password = hashed
     db.session.commit()
 
-    session.pop('reset_email', None)
-    session.pop('reset_verified', None)
-    session.pop('reset_otp', None)
+    session.clear()
 
     return jsonify({'status': 'success', 'message': 'Password updated'})
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login_request_otp', methods=['POST'])
+def login_request_otp():
+    data = request.get_json()
+    email = data.get('email', '').strip().lower()
+    password = data.get('password', '')
+
+    user = User.query.filter_by(email=email).first()
+    if not user or not bcrypt.check_password_hash(user.password, password):
+        return jsonify({'status': 'error', 'message': 'Invalid email or password'})
+
+    if user.username.lower() == 'admin':
+        login_user(user)
+        return jsonify({
+            'status': 'success',
+            'redirect': url_for('admin_dashboard')
+        })
+
+    otp = random.randint(100000, 999999)
+    session['login_user_id'] = user.id
+    session['login_otp'] = str(otp)
+
+    try:
+        msg = Message(
+            subject="Trackr - Login OTP",
+            sender=app.config['MAIL_DEFAULT_SENDER'],
+            recipients=[email],
+            body=f"Hello {user.username},\n\nYour login OTP is: {otp}\n\nIf you did not request this, ignore."
+        )
+        mail.send(msg)
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Failed to send OTP: {e}'})
+
+    return jsonify({'status': 'otp_sent'})
+
+@app.route('/login_verify_otp', methods=['POST'])
+def login_verify_otp():
+    data = request.get_json()
+    entered_otp = data.get('otp', '').strip()
+
+    if 'login_user_id' not in session or 'login_otp' not in session:
+        return jsonify({'status': 'error', 'message': 'No login attempt found'})
+
+    if entered_otp != session['login_otp']:
+        return jsonify({'status': 'error', 'message': 'Invalid OTP'})
+
+    user_id = session.pop('login_user_id')
+    session.pop('login_otp')
+    user = User.query.get(user_id)
+    login_user(user)
+
+    redirect_url = url_for('dashboard') if user.username.lower() != 'admin' else url_for('admin_dashboard')
+    return jsonify({'status': 'success', 'redirect': redirect_url})
+
+@app.route('/login', methods=['GET'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
@@ -273,20 +335,44 @@ def add_item():
     if current_user.username.lower() == 'admin':
         flash('Admins cannot report items.', 'warning')
         return redirect(url_for('admin_dashboard'))
+
     categories = ["Electronics", "Clothing", "Documents", "Accessories", "Bags", "Keys", "Pets", "Others"]
+
     if request.method == 'POST':
         name = request.form['name']
         description = request.form['description']
         location = request.form['location']
         status = request.form['status']
         category = request.form['category']
-        item = Item(name=name, description=description, location=location,
-                    status=status, category=category, user_id=current_user.id)
-        db.session.add(item)
+
+        image_filename = None
+
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                filename = f"{datetime.utcnow().timestamp()}_{filename}"
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                image_filename = filename
+
+        new_item = Item(
+            name=name,
+            description=description,
+            location=location,
+            status=status,
+            category=category,
+            image_filename=image_filename,
+            user_id=current_user.id
+        )
+
+        db.session.add(new_item)
         db.session.commit()
+
         flash('Item added successfully!', 'success')
         return redirect(url_for('dashboard'))
+
     return render_template('add_item.html', categories=categories)
+
 
 @app.route('/edit_item/<int:item_id>', methods=['GET', 'POST'])
 @login_required
@@ -297,11 +383,20 @@ def edit_item(item_id):
         return redirect(url_for('dashboard'))
     categories = ["Electronics", "Clothing", "Documents", "Accessories", "Bags", "Keys", "Pets", "Others"]
     if request.method == 'POST':
-        item.name = request.form['name']
-        item.description = request.form['description']
-        item.location = request.form['location']
-        item.status = request.form['status']
-        item.category = request.form['category']
+        name = request.form['name']
+        description = request.form['description']
+        location = request.form['location']
+        status = request.form['status']
+        category = request.form['category']
+
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                filename = f"{datetime.utcnow().timestamp()}_{filename}"
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                item.image_filename = filename
+
         db.session.commit()
         flash('Item updated successfully!', 'success')
         return redirect(url_for('dashboard'))
@@ -398,6 +493,53 @@ def admin_edit_item(item_id):
         return redirect(url_for('admin_dashboard'))
 
     return render_template('edit_items.html', item=item, categories=categories)
+
+@app.route('/admin_edit_user', methods=['POST'])
+def admin_edit_user():
+    data = request.get_json()
+    user_id = data.get('id')
+    username = data.get('username', '').strip()
+    email = data.get('email', '').strip()
+    phone = data.get('phone', '').strip()
+
+    if not username or not email:
+        return jsonify({'status':'error','message':'Username and email are required'}), 400
+
+    import re
+    if not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
+        return jsonify({'status':'error','message':'Invalid email format'}), 400
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'status':'error','message':'User not found'}), 404
+
+    user.username = username
+    user.email = email
+    user.phone = phone
+
+    try:
+        db.session.commit()
+        return jsonify({'status':'success'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'status':'error','message':'Database error: '+str(e)}), 500
+
+@app.route('/admin_delete_user', methods=['POST'])
+def admin_delete_user():
+    data = request.get_json()
+    user_id = data.get('id')
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'status':'error','message':'User not found'}), 404
+
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({'status':'success'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'status':'error','message':'Database error: '+str(e)}), 500
+
 
 @app.route('/admin/delete_item/<int:item_id>', methods=['GET', 'POST'])
 @login_required
