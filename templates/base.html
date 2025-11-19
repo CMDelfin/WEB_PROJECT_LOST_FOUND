@@ -20,29 +20,43 @@
     <p class="mt-2">Loading Trackr...</p>
   </div>
 
+  <div class="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm position-relative" role="alert">
+          {{ message|safe }}
+          <button type="button" class="btn-close-custom-alert" data-bs-dismiss="alert" aria-label="Close">&times;</button>
+        </div>
+      {% endfor %}
+    {% endwith %}
+  </div>
+
   <nav class="navbar-modern-full" role="navigation" aria-label="Main navigation">
     <div class="navbar-inner">
-      <a class="navbar-brand d-flex align-items-center" 
+
+      <a class="navbar-brand d-flex align-items-center"
          href="{% if current_user.is_authenticated %}{{ url_for('dashboard') }}{% else %}{{ url_for('index') }}{% endif %}">
-        <img src="{{ url_for('static', filename='images/lostfoundlogo.png') }}" 
+        <img src="{{ url_for('static', filename='images/lostfoundlogo.png') }}"
              alt="Lost & Found Logo"
              class="rounded-circle border border-light">
         <span class="title">Trackr</span>
       </a>
 
-      <div class="d-flex align-items-center gap-2 ms-auto">
-        {% set current_page = request.endpoint %}
+      <div class="d-none d-md-flex align-items-center gap-2 ms-auto">
 
         {% if not current_user.is_authenticated %}
-          {% if current_page in ['index', 'login', 'register', 'view_items'] %}
-            <a href="{{ url_for('login') }}" class="btn nav-btn">Login</a>
-            <a href="{{ url_for('register') }}" class="btn nav-btn">Register</a>
-          {% endif %}
+          <a href="{{ url_for('login') }}" class="btn nav-btn">Login</a>
+          <a href="{{ url_for('register') }}" class="btn nav-btn">Register</a>
+          <a href="{{ url_for('view_items') }}" class="btn nav-btn">Browse Items</a>
         {% endif %}
 
-        <a href="{{ url_for('view_items') }}" class="btn nav-btn">Browse Items</a>
-        <button id="sidebarToggle" class="btn nav-btn">☰ Menu</button>
+        <button class="sidebar-toggle btn nav-btn">☰ Menu</button>
       </div>
+
+      <div class="d-flex d-md-none ms-auto">
+        <button class="sidebar-toggle btn nav-btn">☰ Menu</button>
+      </div>
+
     </div>
   </nav>
 
@@ -52,7 +66,7 @@
     {% if current_user.is_authenticated %}
       <div class="text-center mb-3 mt-3 sidebar-profile">
         {% if current_user.profile_pic %}
-          <img src="{{ url_for('static', filename='uploads/' + current_user.profile_pic) }}" 
+          <img src="{{ url_for('static', filename='uploads/' + current_user.profile_pic) }}"
                alt="Profile Picture"
                class="rounded-circle border border-light mb-1 profile-img"
                width="60" height="60">
@@ -69,35 +83,35 @@
 
       {% if current_user.username.lower() == 'admin' %}
         <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary w-100 mb-2">Dashboard</a>
+        <a href="{{ url_for('profile') }}" class="btn btn-primary w-100 mb-2">Profile</a>
         <a href="{{ url_for('admin_messages') }}" class="btn btn-primary w-100 mb-2">Messages</a>
         <a href="{{ url_for('admin_contacts') }}" class="btn btn-secondary w-100 mb-2">Contacts</a>
       {% else %}
         <a href="{{ url_for('dashboard') }}" class="btn btn-primary w-100 mb-2">Dashboard</a>
+        <a href="{{ url_for('profile') }}" class="btn btn-primary w-100 mb-2">Profile</a>
         <a href="{{ url_for('messages') }}" class="btn btn-primary w-100 mb-2">Messages</a>
+        <a href="{{ url_for('view_items') }}" class="btn btn-primary w-100 mb-2">Browse Items</a>
       {% endif %}
 
       <a href="{{ url_for('logout') }}" class="btn btn-danger w-100 mb-2">Logout</a>
+
     {% else %}
+      <div class="text-center mb-3 mt-3 sidebar-profile">
+        <div class="profile-placeholder rounded-circle mb-1">👤</div>
+        <h6 class="mb-0">Guest</h6>
+      </div>
+
       <h5 class="text-center mb-3 mt-1">⚙️ Menu</h5>
+
+      <a href="{{ url_for('login') }}" class="btn btn-outline-primary w-100 mb-2 d-md-none">Log in</a>
+      <a href="{{ url_for('register') }}" class="btn btn-outline-success w-100 mb-2 d-md-none">Register</a>
+      <a href="{{ url_for('view_items') }}" class="btn btn-primary w-100 mb-2 d-md-none">Browse Items</a>
     {% endif %}
 
-    <div class="text-center">
-      <button id="darkModeToggle" class="btn btn-secondary w-75 mt-2">🌙 Dark Mode</button>
+    <div class="text-center mt-2">
+      <button id="darkModeToggle" class="btn btn-secondary w-75">🌙 Dark Mode</button>
     </div>
   </div>
-
-  <div class="flash-container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm position-relative" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close-custom-alert" data-bs-dismiss="alert" aria-label="Close">&times;</button>
-        </div>
-      {% endfor %}
-    {% endwith %}
-  </div>
-
-  <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3"></div>
 
   <main id="main-content" class="container my-2 flex-grow-1" role="main">
     {% block content %}{% endblock %}
@@ -123,7 +137,9 @@
       if (window.scrollY > 200) backToTop.classList.add("show");
       else backToTop.classList.remove("show");
     });
-    backToTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    backToTop.addEventListener("click", () =>
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    );
 
     function showToast(message, type="info") {
       const toast = document.createElement("div");
@@ -134,6 +150,26 @@
       document.getElementById("toast-container").appendChild(toast);
       setTimeout(() => toast.remove(), 4000);
     }
+
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggles = document.querySelectorAll('.sidebar-toggle');
+    const closeSidebar = document.getElementById('closeSidebar');
+
+    sidebarToggles.forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+      });
+    });
+
+    closeSidebar.addEventListener('click', () => {
+      sidebar.classList.remove('active');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!sidebar.contains(e.target) && !e.target.classList.contains('sidebar-toggle')) {
+        sidebar.classList.remove('active');
+      }
+    });
   </script>
 </body>
 </html>

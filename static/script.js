@@ -45,101 +45,137 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("theme", isDark ? "dark" : "light");
   });
 
-  const registerForm = document.getElementById("registerForm");
-  if (registerForm) {
-    registerForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const username = document.getElementById("username");
-      const email = document.getElementById("email");
-      const password = document.getElementById("password");
-      const phone = document.getElementById("phone");
-      const registerBtn = document.getElementById("registerBtn");
-      const btnText = document.getElementById("btnText");
-      const btnSpinner = document.getElementById("btnSpinner");
+const registerForm = document.getElementById("registerForm");
+const phone = document.getElementById("phone");
 
-      let valid = true;
-      if (username.value.trim().length < 3) { username.classList.add("is-invalid"); valid = false; } else { username.classList.remove("is-invalid"); }
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailPattern.test(email.value.trim())) { email.classList.add("is-invalid"); valid = false; } else { email.classList.remove("is-invalid"); }
-      if (password.value.trim().length < 6) { password.classList.add("is-invalid"); valid = false; } else { password.classList.remove("is-invalid"); }
-      if (!valid) return;
+if (phone) {
+  phone.addEventListener("input", () => {
+    phone.value = phone.value.replace(/\D/g, "");
+    if (phone.value.length > 11) {
+      phone.value = phone.value.slice(0, 11);
+    }
+  });
+}
 
-      btnText.style.display = "none";
-      btnSpinner.style.display = "inline-block";
-      registerBtn.disabled = true;
+if (registerForm) {
+  registerForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const username = document.getElementById("username");
+    const email = document.getElementById("email");
+    const password = document.getElementById("password");
+    const registerBtn = document.getElementById("registerBtn");
+    const btnText = document.getElementById("btnText");
+    const btnSpinner = document.getElementById("btnSpinner");
 
-      const payload = {
-        username: username.value.trim(),
-        email: email.value.trim(),
-        password: password.value.trim(),
-        phone: phone ? phone.value.trim() : ''
-      };
+    let valid = true;
+    if (username.value.trim().length < 3) { 
+      username.classList.add("is-invalid"); 
+      valid = false; 
+    } else { 
+      username.classList.remove("is-invalid"); 
+    }
 
-      try {
-        const response = await fetch("/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        const data = await response.json();
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email.value.trim())) { 
+      email.classList.add("is-invalid"); 
+      valid = false; 
+    } else { 
+      email.classList.remove("is-invalid"); 
+    }
 
-        if (data.status === "otp_sent") {
-          const otpModal = new bootstrap.Modal(document.getElementById("otpModal"));
-          otpModal.show();
+    if (password.value.trim().length < 6) { 
+      password.classList.add("is-invalid"); 
+      valid = false; 
+    } else { 
+      password.classList.remove("is-invalid"); 
+    }
 
-          const verifyBtn = document.getElementById("verifyOtpBtn");
-          const otpInput = document.getElementById("otpInput");
-          const otpError = document.getElementById("otpError");
-          const otpBtnText = document.getElementById("otpBtnText");
-          const otpSpinner = document.getElementById("otpSpinner");
+    if (phone.value && phone.value.length !== 11) {
+      phone.classList.add("is-invalid");
+      valid = false;
+    } else {
+      phone.classList.remove("is-invalid");
+    }
 
-          verifyBtn.onclick = async () => {
-            const otp = otpInput.value.trim();
-            if (otp.length !== 6) { otpError.textContent = "Enter a 6-digit OTP"; otpError.style.display = "block"; return; }
+    if (!valid) return;
 
-            otpBtnText.style.display = "none";
-            otpSpinner.style.display = "inline-block";
-            verifyBtn.disabled = true;
+    btnText.style.display = "none";
+    btnSpinner.style.display = "inline-block";
+    registerBtn.disabled = true;
 
-            try {
-              const otpResp = await fetch("/verify_otp", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ otp })
-              });
-              const otpData = await otpResp.json();
-              if (otpData.status === "success") {
-                otpError.style.display = "none";
-                otpModal.hide();
-                window.location.href = "/login";
-              } else {
-                otpError.textContent = otpData.message || "Invalid OTP";
-                otpError.style.display = "block";
-              }
-            } catch {
-              otpError.textContent = "Error connecting to server.";
+    const payload = {
+      username: username.value.trim(),
+      email: email.value.trim(),
+      password: password.value.trim(),
+      phone: phone ? phone.value.trim() : ''
+    };
+
+    try {
+      const response = await fetch("/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+
+      if (data.status === "otp_sent") {
+        const otpModal = new bootstrap.Modal(document.getElementById("otpModal"));
+        otpModal.show();
+
+        const verifyBtn = document.getElementById("verifyOtpBtn");
+        const otpInput = document.getElementById("otpInput");
+        const otpError = document.getElementById("otpError");
+        const otpBtnText = document.getElementById("otpBtnText");
+        const otpSpinner = document.getElementById("otpSpinner");
+
+        verifyBtn.onclick = async () => {
+          const otp = otpInput.value.trim();
+          if (otp.length !== 6) { otpError.textContent = "Enter a 6-digit OTP"; otpError.style.display = "block"; return; }
+
+          otpBtnText.style.display = "none";
+          otpSpinner.style.display = "inline-block";
+          verifyBtn.disabled = true;
+
+          try {
+            const otpResp = await fetch("/verify_otp", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ otp })
+            });
+            const otpData = await otpResp.json();
+            if (otpData.status === "success") {
+              otpError.style.display = "none";
+              otpModal.hide();
+              window.location.href = "/login";
+            } else {
+              otpError.textContent = otpData.message || "Invalid OTP";
               otpError.style.display = "block";
-            } finally {
-              otpBtnText.style.display = "inline";
-              otpSpinner.style.display = "none";
-              verifyBtn.disabled = false;
             }
-          };
-        } else {
-          alert(data.message || "Registration failed");
-          btnText.style.display = "inline";
-          btnSpinner.style.display = "none";
-          registerBtn.disabled = false;
-        }
-      } catch (err) {
-        alert("Error connecting to server.");
+          } catch {
+            otpError.textContent = "Error connecting to server.";
+            otpError.style.display = "block";
+          } finally {
+            otpBtnText.style.display = "inline";
+            otpSpinner.style.display = "none";
+            verifyBtn.disabled = false;
+          }
+        };
+      } else {
+        alert(data.message || "Registration failed");
         btnText.style.display = "inline";
         btnSpinner.style.display = "none";
         registerBtn.disabled = false;
-        console.error(err);
       }
-    });
-  }
+    } catch (err) {
+      alert("Error connecting to server.");
+      btnText.style.display = "inline";
+      btnSpinner.style.display = "none";
+      registerBtn.disabled = false;
+      console.error(err);
+    }
+  });
+}
+
 
 const loginForm = document.getElementById("loginForm");
   const loginOtpModalEl = document.getElementById("loginOtpModal");

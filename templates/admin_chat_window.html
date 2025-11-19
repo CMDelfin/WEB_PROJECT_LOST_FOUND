@@ -1,0 +1,63 @@
+<div class="messages-container flex-grow-1 overflow-auto p-3 d-flex flex-column" id="messagesContainer">
+    {% if messages %}
+        {% for msg in messages|reverse %}
+            <div class="d-flex mb-2 
+                {% if msg.sender_id == current_user.id %}justify-content-end{% else %}justify-content-start{% endif %}">
+                
+                <div class="message-bubble 
+                    {% if msg.sender_id == current_user.id %}message-right{% else %}message-left{% endif %}">
+                    
+                    <small class="message-sender fw-bold d-block mb-1">
+                        {% if msg.sender_id != current_user.id %}
+                            {{ selected_user.username }}
+                        {% else %}
+                            You
+                        {% endif %}
+                    </small>
+
+                    {{ msg.content }}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-muted text-center mt-3">No messages yet.</p>
+    {% endif %}
+</div>
+
+<div class="message-input flex-shrink-0 p-1" 
+     style="border-top: none !important; padding-bottom: 6px !important;">
+
+    <form method="POST" action="{{ url_for('admin_send_message') }}" id="adminMessageForm">
+        <input type="hidden" name="receiver_id" value="{{ selected_user.id }}">
+
+        <div class="input-wrapper d-flex">
+            <input type="text" name="content" placeholder="Type a message..." required class="form-control me-2">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+
+function scrollToBottom() {
+    const container = document.getElementById("messagesContainer");
+    if (container) {
+        container.scrollTop = container.scrollHeight;
+    }
+}
+
+window.addEventListener("load", scrollToBottom);
+
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(scrollToBottom, 50);
+});
+
+const form = document.getElementById("adminMessageForm");
+if (form) {
+    form.addEventListener("submit", () => {
+        setTimeout(scrollToBottom, 300);
+    });
+}
+</script>

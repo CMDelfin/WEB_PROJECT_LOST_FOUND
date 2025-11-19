@@ -409,10 +409,34 @@ def delete_item(item_id):
     if item.user_id != current_user.id:
         flash("You can't delete someone else's item!", 'danger')
         return redirect(url_for('dashboard'))
+
+    confirm_url = url_for('confirm_delete_item', item_id=item.id)
+
+    flash(
+        f"Are you sure you want to delete '<strong>{item.name}</strong>'? "
+        f"<a href='{confirm_url}' class='btn btn-danger btn-sm ms-2'>Delete</a>",
+        "warning"
+    )
+
+    return redirect(url_for('dashboard'))
+
+
+@app.route('/confirm_delete_item/<int:item_id>')
+@login_required
+def confirm_delete_item(item_id):
+    item = Item.query.get_or_404(item_id)
+
+    if item.user_id != current_user.id:
+        flash("You can't delete someone else's item!", "danger")
+        return redirect(url_for('dashboard'))
+
     db.session.delete(item)
     db.session.commit()
-    flash('Item deleted!', 'info')
+
+    flash("Item deleted successfully!", "info")
     return redirect(url_for('dashboard'))
+
+
 
 @app.route('/view_items')
 def view_items():
@@ -662,5 +686,77 @@ def admin_contacts():
     contacts = Contact.query.order_by(Contact.timestamp.desc()).all()
     return render_template('contacts_admin.html', contacts=contacts)
 
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        email = request.form.get('email', '').strip().lower()
+        phone = request.form.get('phone', '').strip()
+
+        if not username or not email:
+            flash('Username and email are required.', 'danger')
+            return redirect(url_for('profile'))
+
+        existing_user_email = User.query.filter(User.email == email, User.id != current_user.id).first()
+        existing_user_username = User.query.filter(User.username == username, User.id != current_user.id).first()
+        if existing_user_email or existing_user_username:
+            flash('Email or username is already in use.', 'danger')
+            return redirect(url_for('profile'))
+
+        current_user.username = username
+        current_user.email = email
+        current_user.phone = phone
+
+        if 'profile_pic' in request.files:
+            file = request.files['profile_pic']
+            if file and file.filename and allowed_file(file.filename):
+                try:
+                    filename = secure_filename(file.filename)
+                    filename = f"profile_{current_user.id}_{datetime.utcnow().timestamp()}_{filename}"
+                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(file_path)
+                    current_user.profile_pic = filename 
+                except Exception as e:
+                    flash(f'Failed to upload image: {str(e)}', 'danger')
+                    print(f"Image upload error: {e}")
+            elif file and not allowed_file(file.filename):
+                flash('Invalid file type. Only PNG, JPG, JPEG, GIF allowed.', 'danger')
+
+        try:
+            db.session.commit()
+
+            db.session.refresh(current_user)
+            flash('Profile updated successfully!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Failed to update profile: {str(e)}', 'danger')
+            print(f"DB commit error: {e}") 
+
+        return redirect(url_for('profile'))
+
+    return render_template('profile.html', user=current_user)
+
+
+@app.route('/delete_account', methods=['POST'])
+@login_required
+def delete_account():
+    items = Item.query.filter_by(user_id=current_user.id).all()
+    for item in items:
+        db.session.delete(item)
+
+    messages_sent = ChatMessage.query.filter_by(sender_id=current_user.id).all()
+    messages_received = ChatMessage.query.filter_by(receiver_id=current_user.id).all()
+    for msg in messages_sent + messages_received:
+        db.session.delete(msg)
+
+    db.session.delete(current_user)
+    db.session.commit()
+    logout_user()
+    flash('Your account has been deleted successfully.', 'info')
+    return redirect(url_for('index'))
+
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=int(os.getenv("PORT", 5000)))
+   

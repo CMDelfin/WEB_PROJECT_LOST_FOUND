@@ -10,9 +10,11 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone = db.Column(db.String(20))
     password = db.Column(db.String(200), nullable=False)
-    items = db.relationship('Item', backref='user', lazy=True)
-    sent_messages = db.relationship('Message', foreign_keys='Message.sender_id', backref='sender', lazy=True)
-    received_messages = db.relationship('Message', foreign_keys='Message.receiver_id', backref='receiver', lazy=True)
+    profile_pic = db.Column(db.String(255))
+
+    items = db.relationship('Item', backref='user', lazy=True, cascade="all, delete-orphan")
+    sent_messages = db.relationship('Message', foreign_keys='Message.sender_id', backref='sender', lazy=True, cascade="all, delete-orphan")
+    received_messages = db.relationship('Message', foreign_keys='Message.receiver_id', backref='receiver', lazy=True, cascade="all, delete-orphan")
 
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
