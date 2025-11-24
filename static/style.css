@@ -1236,3 +1236,8 @@ body.dark-mode #otpModal .btn:hover {
 
 }
 
+body.modal-open .navbar-modern-full,
+body.modal-open #sidebarToggle {
+    pointer-events: none !important;
+    opacity: 0; 
+}

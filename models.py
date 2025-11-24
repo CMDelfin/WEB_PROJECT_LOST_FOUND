@@ -11,7 +11,6 @@ class User(UserMixin, db.Model):
     phone = db.Column(db.String(20))
     password = db.Column(db.String(200), nullable=False)
     profile_pic = db.Column(db.String(255))
-
     items = db.relationship('Item', backref='user', lazy=True, cascade="all, delete-orphan")
     sent_messages = db.relationship('Message', foreign_keys='Message.sender_id', backref='sender', lazy=True, cascade="all, delete-orphan")
     received_messages = db.relationship('Message', foreign_keys='Message.receiver_id', backref='receiver', lazy=True, cascade="all, delete-orphan")

@@ -48,14 +48,17 @@ try:
 except Exception:
     LOCAL_TZ = pytz.UTC
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
 
 def to_local_time(dt):
     if dt.tzinfo is None:
         dt = pytz.UTC.localize(dt)
     return dt.astimezone(LOCAL_TZ)
+
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png','jpg','jpeg','gif'}
@@ -63,9 +66,9 @@ ALLOWED_EXTENSIONS = {'png','jpg','jpeg','gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -86,35 +89,20 @@ def register():
             session['otp'] = str(otp)
 
             try:
-                    msg = Message(
-                        subject="Trackr - Verify Your Email Address",
-                        sender=app.config['MAIL_DEFAULT_SENDER'],
-                        recipients=[email],
-                        body=f"""Hello {username},
+                msg = Message(
+                    subject="Trackr - Verify Your Email Address",
+                    recipients=[email],
+                    sender=app.config['MAIL_DEFAULT_SENDER']
+                )
 
-                Thank you for registering with Trackr! To complete your registration, please use the following One-Time Password (OTP):
+                msg.html = render_template("email_otp.html", user_name=username, otp_code=otp)
+                mail.send(msg)
 
-                {otp}
-
-                This code is valid for a limited time. Please do not share it with anyone.
-
-                If you did not request this, please ignore this email.
-
-                Best regards,
-                The Trackr Team
-                """
-                    )
-                    mail.send(msg)
             except Exception as e:
-                    return jsonify({'status': 'error', 'message': f"Failed to send OTP: {e}"})
+                return jsonify({'status': 'error', 'message': f"Failed to send OTP: {e}"})
 
             return jsonify({'status': 'otp_sent'})
 
-
-        username = request.form['username'].strip()
-        email = request.form['email'].strip().lower()
-        phone = request.form.get('phone')
-        password = request.form['password']
         flash('Please use the registration form properly.', 'warning')
         return redirect(url_for('register'))
 
@@ -165,21 +153,13 @@ def forgot_password():
     try:
         msg = Message(
             subject="Trackr - Password Reset OTP",
-            sender=app.config['MAIL_DEFAULT_SENDER'],
             recipients=[email],
-            body=f"""Hello {user.username},
-
-            We received a request to reset your Trackr password. Use the following One-Time Password (OTP) to proceed:
-
-            {otp}
-
-            If you didn't request this, please ignore this message.
-
-            Best,
-            Trackr Team
-            """
+            sender=app.config['MAIL_DEFAULT_SENDER'],
         )
+
+        msg.html = render_template("email_otp.html", user_name=user.username, otp_code=otp)
         mail.send(msg)
+
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'Failed to send OTP: {e}'})
 
@@ -234,7 +214,6 @@ def reset_password():
 
     return jsonify({'status': 'success', 'message': 'Password updated'})
 
-
 @app.route('/login_request_otp', methods=['POST'])
 def login_request_otp():
     data = request.get_json()
@@ -247,10 +226,7 @@ def login_request_otp():
 
     if user.username.lower() == 'admin':
         login_user(user)
-        return jsonify({
-            'status': 'success',
-            'redirect': url_for('admin_dashboard')
-        })
+        return jsonify({'status': 'success','redirect': url_for('admin_dashboard')})
 
     otp = random.randint(100000, 999999)
     session['login_user_id'] = user.id
@@ -259,15 +235,18 @@ def login_request_otp():
     try:
         msg = Message(
             subject="Trackr - Login OTP",
-            sender=app.config['MAIL_DEFAULT_SENDER'],
             recipients=[email],
-            body=f"Hello {user.username},\n\nYour login OTP is: {otp}\n\nIf you did not request this, ignore."
+            sender=app.config['MAIL_DEFAULT_SENDER'],
         )
+
+        msg.html = render_template("email_otp.html", user_name=user.username, otp_code=otp)
         mail.send(msg)
+
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'Failed to send OTP: {e}'})
 
     return jsonify({'status': 'otp_sent'})
+
 
 @app.route('/login_verify_otp', methods=['POST'])
 def login_verify_otp():
@@ -378,16 +357,19 @@ def add_item():
 @login_required
 def edit_item(item_id):
     item = Item.query.get_or_404(item_id)
+
     if item.user_id != current_user.id:
         flash("You can't edit someone else's item!", 'danger')
         return redirect(url_for('dashboard'))
+
     categories = ["Electronics", "Clothing", "Documents", "Accessories", "Bags", "Keys", "Pets", "Others"]
+
     if request.method == 'POST':
-        name = request.form['name']
-        description = request.form['description']
-        location = request.form['location']
-        status = request.form['status']
-        category = request.form['category']
+        item.name = request.form['name']
+        item.description = request.form['description']
+        item.location = request.form['location']
+        item.status = request.form['status']
+        item.category = request.form['category']
 
         if 'image' in request.files:
             file = request.files['image']
@@ -400,6 +382,7 @@ def edit_item(item_id):
         db.session.commit()
         flash('Item updated successfully!', 'success')
         return redirect(url_for('dashboard'))
+
     return render_template('edit_items.html', item=item, categories=categories)
 
 @app.route('/delete_item/<int:item_id>')

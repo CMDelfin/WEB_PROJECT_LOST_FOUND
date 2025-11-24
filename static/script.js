@@ -656,3 +656,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+document.querySelectorAll(".modal").forEach(modal => {
+  modal.addEventListener("show.bs.modal", () => {
+    document.body.classList.add("modal-open");
+  });
+
+  modal.addEventListener("hidden.bs.modal", () => {
+    document.body.classList.remove("modal-open");
+  });
+});
